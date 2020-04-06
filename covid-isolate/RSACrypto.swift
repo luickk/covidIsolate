@@ -1,40 +1,29 @@
-//
-//  RSAUtils.swift
-//  Swift-RSAUtils
-//
-//  Created by Thanh Nguyen on 7/10/15.
-//  Copyright (c) 2015 Thanh Nguyen. All rights reserved.
-//
-////////////////////////////////////////////////////////////////////////
-// RSA Utility Class
-// Credits:
-// - https://github.com/ideawu/Objective-C-RSA
-// - http://netsplit.com/swift-storing-key-pairs-in-the-keyring
-// - http://netsplit.com/swift-generating-keys-and-encrypting-and-decrypting-text
-// - http://hg.mozilla.org/services/fx-home/file/tip/Sources/NetworkAndStorage/CryptoUtils.m#l1036
 import Foundation
 import Security
 
-public class RSAUtils: NSObject {
+// params
+let algorithm: SecKeyAlgorithm = .rsaSignatureMessagePKCS1v15SHA512
+let useKeyHashes = false
+
+public class RSACrypto: NSObject {
     
-    // Configuration keys
-    struct Config {
-        /// Determines whether to add key hash to the keychain path when searching for a key
-        /// or when adding a key to keychain
-        static var useKeyHashes = false
-    }
-    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Base64 encode a block of data
     static fileprivate func base64Encode(_ data: Data) -> String {
         return data.base64EncodedString(options: [])
     }
     
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Base64 decode a base64-ed string
     static fileprivate func base64Decode(_ strBase64: String) -> Data {
         let data = Data(base64Encoded: strBase64, options: [])
         return data!
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Encrypts data with a RSA key
     static public func encryptWithRSAKey(_ data: Data, rsaKeyRef: SecKey, padding: SecPadding) -> Data? {
         let blockSize = SecKeyGetBlockSize(rsaKeyRef)
@@ -71,7 +60,9 @@ public class RSAUtils: NSObject {
 
         return Data(bytes: UnsafePointer<UInt8>(encryptedData), count: encryptedData.count)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Decrypt an encrypted data with a RSA key
     static public func decryptWithRSAKey(_ encryptedData: Data, rsaKeyRef: SecKey, padding: SecPadding) -> Data? {
         let blockSize = SecKeyGetBlockSize(rsaKeyRef)
@@ -106,7 +97,9 @@ public class RSAUtils: NSObject {
 
         return Data(bytes: UnsafePointer<UInt8>(decryptedData), count: decryptedData.count)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     static fileprivate func removePadding(_ data: [UInt8]) -> [UInt8] {
         var idxFirstZero = -1
         var idxNextZero = data.count
@@ -126,7 +119,9 @@ public class RSAUtils: NSObject {
         }
         return newData
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Verify that the supplied key is in fact a X509 public key and strip the header
     // On disk, a X509 public key file starts with string "-----BEGIN PUBLIC KEY-----",
     // and ends with string "-----END PUBLIC KEY-----"
@@ -177,7 +172,9 @@ public class RSAUtils: NSObject {
         //return pubkey.subdata(in: NSMakeRange(idx, keyAsArray.count - idx))
         return pubkey.subdata(in: NSMakeRange(idx, keyAsArray.count - idx).toRange()!)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Verify that the supplied key is in fact a PEM RSA private key key and strip the header
     // On disk, a PEM RSA private key file starts with string "-----BEGIN RSA PRIVATE KEY-----",
     // and ends with string "-----END RSA PRIVATE KEY-----"
@@ -230,7 +227,9 @@ public class RSAUtils: NSObject {
         //return privkey.subdata(in: NSMakeRange(idx, len))
         return privkey.subdata(in: NSMakeRange(idx, len).toRange()!)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Delete any existing RSA key from keychain
     static public func deleteRSAKeyFromKeychain(_ tagName: String) {
         let queryFilter: [String: AnyObject] = [
@@ -240,7 +239,9 @@ public class RSAUtils: NSObject {
         ]
         SecItemDelete(queryFilter as CFDictionary)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Get a SecKeyRef from keychain
     static public func getRSAKeyFromKeychain(_ tagName: String) -> SecKey? {
         let queryFilter: [String: AnyObject] = [
@@ -258,13 +259,17 @@ public class RSAUtils: NSObject {
         }
         return keyPtr as! SecKey?
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Add a RSA private key to keychain and return its SecKeyRef
     // privkeyBase64: RSA private key in base64 (data between "-----BEGIN RSA PRIVATE KEY-----" and "-----END RSA PRIVATE KEY-----")
     static public func addRSAPrivateKey(_ privkeyBase64: String, tagName: String) -> SecKey? {
         return addRSAPrivateKey(privkey: base64Decode(privkeyBase64), tagName: tagName)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     static fileprivate func addRSAPrivateKey(privkey: Data, tagName: String) -> SecKey? {
         // Delete any old lingering key with the same tag
         deleteRSAKeyFromKeychain(tagName)
@@ -292,13 +297,17 @@ public class RSAUtils: NSObject {
 
         return getRSAKeyFromKeychain(tagName)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Add a RSA pubic key to keychain and return its SecKeyRef
     // pubkeyBase64: RSA public key in base64 (data between "-----BEGIN PUBLIC KEY-----" and "-----END PUBLIC KEY-----")
     static public func addRSAPublicKey(_ pubkeyBase64: String, tagName: String) -> SecKey? {
         return addRSAPublicKey(pubkey: base64Decode(pubkeyBase64), tagName: tagName)
     }
     
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     static fileprivate func addRSAPublicKey(pubkey: Data, tagName: String) -> SecKey? {
         // Delete any old lingering key with the same tag
         deleteRSAKeyFromKeychain(tagName)
@@ -325,12 +334,14 @@ public class RSAUtils: NSObject {
         
         return getRSAKeyFromKeychain(tagName)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Encrypt data with a RSA private key
     // privkeyBase64: RSA private key in base64 (data between "-----BEGIN RSA PRIVATE KEY-----" and "-----END RSA PRIVATE KEY-----")
     // NOT WORKING YET!
     static public func encryptWithRSAPrivateKey(_ data: Data, privkeyBase64: String, keychainTag: String) -> Data? {
-        let myKeychainTag = keychainTag + (Config.useKeyHashes ? "-" + String(privkeyBase64.hashValue) : "")
+        let myKeychainTag = keychainTag + (useKeyHashes ? "-" + String(privkeyBase64.hashValue) : "")
         var keyRef = getRSAKeyFromKeychain(myKeychainTag)
         if ( keyRef == nil ) {
             keyRef = addRSAPrivateKey(privkeyBase64, tagName: myKeychainTag)
@@ -341,11 +352,13 @@ public class RSAUtils: NSObject {
 
         return encryptWithRSAKey(data, rsaKeyRef: keyRef!, padding: SecPadding.PKCS1)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Encrypt data with a RSA public key
     // pubkeyBase64: RSA public key in base64 (data between "-----BEGIN PUBLIC KEY-----" and "-----END PUBLIC KEY-----")
     static public func encryptWithRSAPublicKey(_ data: Data, pubkeyBase64: String, keychainTag: String) -> Data? {
-        let myKeychainTag = keychainTag + (Config.useKeyHashes ? "-" + String(pubkeyBase64.hashValue) : "")
+        let myKeychainTag = keychainTag + (useKeyHashes ? "-" + String(pubkeyBase64.hashValue) : "")
         var keyRef = getRSAKeyFromKeychain(myKeychainTag)
         if ( keyRef == nil ) {
             keyRef = addRSAPublicKey(pubkeyBase64, tagName: myKeychainTag)
@@ -356,11 +369,13 @@ public class RSAUtils: NSObject {
 
         return encryptWithRSAKey(data, rsaKeyRef: keyRef!, padding: SecPadding.PKCS1)
     }
-
+    
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Decrypt an encrypted data with a RSA private key
     // privkeyBase64: RSA private key in base64 (data between "-----BEGIN RSA PRIVATE KEY-----" and "-----END RSA PRIVATE KEY-----")
     static public func decryptWithRSAPrivateKey(_ encryptedData: Data, privkeyBase64: String, keychainTag: String) -> Data? {
-        let myKeychainTag = keychainTag + (Config.useKeyHashes ? "-" + String(privkeyBase64.hashValue) : "")
+        let myKeychainTag = keychainTag + (useKeyHashes ? "-" + String(privkeyBase64.hashValue) : "")
         var keyRef = getRSAKeyFromKeychain(myKeychainTag)
         if ( keyRef == nil ) {
             keyRef = addRSAPrivateKey(privkeyBase64, tagName: myKeychainTag)
@@ -372,10 +387,12 @@ public class RSAUtils: NSObject {
         return decryptWithRSAKey(encryptedData, rsaKeyRef: keyRef!, padding: SecPadding())
     }
     
+    //  Swift-RSAUtils
+    //  Created by Thanh Nguyen on 7/10/15.
     // Decrypt an encrypted data with a RSA public key
     // pubkeyBase64: RSA public key in base64 (data between "-----BEGIN PUBLIC KEY-----" and "-----END PUBLIC KEY-----")
     static public func decryptWithRSAPublicKey(_ encryptedData: Data, pubkeyBase64: String, keychainTag: String) -> Data? {
-        let myKeychainTag = keychainTag + (Config.useKeyHashes ? "-" + String(pubkeyBase64.hashValue) : "")
+        let myKeychainTag = keychainTag + (useKeyHashes ? "-" + String(pubkeyBase64.hashValue) : "")
         var keyRef = getRSAKeyFromKeychain(myKeychainTag)
         if ( keyRef == nil ) {
             keyRef = addRSAPublicKey(pubkeyBase64, tagName: myKeychainTag)
@@ -405,5 +422,33 @@ public class RSAUtils: NSObject {
         let publicKey = SecKeyCopyPublicKey(privateKey)
         
         return (publicKey, privateKey)
+    }
+    
+    static public func createRSASignature(privateKey: SecKey, data: CFData) throws ->  Data? {
+        guard SecKeyIsAlgorithmSupported(privateKey, .sign, algorithm) else {
+            // throw an error
+            return nil
+        }
+        var error: Unmanaged<CFError>?
+        guard let signature = SecKeyCreateSignature(privateKey,
+                                                    algorithm,
+                                                    data as CFData,
+                                                    &error) as Data? else {
+                                                        throw error!.takeRetainedValue() as Error
+        }
+        return signature
+    }
+    
+    
+    static public func verifyRSASignature(publicKey: SecKey, signature: CFData, data: CFData) throws -> Bool {
+        guard SecKeyIsAlgorithmSupported(publicKey, .verify, algorithm) else {
+            return false
+        }
+        var error: Unmanaged<CFError>?
+        return SecKeyVerifySignature(publicKey,
+                                    algorithm,
+                                    data as CFData,
+                                    signature as CFData,
+                                    &error)
     }
 }
