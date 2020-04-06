@@ -7,16 +7,31 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E514B574243B3D8300571678 /* ContactList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */; };
+		E514B575243B3D8300571678 /* ContactList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */; };
+		E550E0BE243B765D009A8AF7 /* RSAUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0BD243B765D009A8AF7 /* RSAUtils.swift */; };
+		E550E0C3243BCB16009A8AF7 /* logo.xcf in Resources */ = {isa = PBXBuildFile; fileRef = E550E0C0243BCB16009A8AF7 /* logo.xcf */; };
+		E550E0C4243BCB16009A8AF7 /* appiconmaker.co_ios.zip in Resources */ = {isa = PBXBuildFile; fileRef = E550E0C1243BCB16009A8AF7 /* appiconmaker.co_ios.zip */; };
+		E550E0C5243BCB16009A8AF7 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = E550E0C2243BCB16009A8AF7 /* logo.png */; };
 		E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172442438B08300D53C84 /* AppDelegate.swift */; };
 		E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172462438B08300D53C84 /* SceneDelegate.swift */; };
 		E5A172492438B08300D53C84 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172482438B08300D53C84 /* ContentView.swift */; };
 		E5A1724B2438B08500D53C84 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5A1724A2438B08500D53C84 /* Assets.xcassets */; };
 		E5A1724E2438B08500D53C84 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E5A1724D2438B08500D53C84 /* Preview Assets.xcassets */; };
 		E5A172512438B08500D53C84 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = E5A1724F2438B08500D53C84 /* LaunchScreen.storyboard */; };
+		E5A17265243934D900D53C84 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E5A17263243934D900D53C84 /* Model.xcdatamodeld */; };
+		E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */; };
+		E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1726B2439374500D53C84 /* User+CoreDataProperties.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		E5A172412438B08300D53C84 /* covid-isolate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "covid-isolate.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactList+CoreDataClass.swift"; sourceTree = "<group>"; };
+		E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactList+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		E550E0BD243B765D009A8AF7 /* RSAUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSAUtils.swift; sourceTree = "<group>"; };
+		E550E0C0243BCB16009A8AF7 /* logo.xcf */ = {isa = PBXFileReference; lastKnownFileType = file; name = logo.xcf; path = ../../../../../Nextcloud/temp/logo.xcf; sourceTree = "<group>"; };
+		E550E0C1243BCB16009A8AF7 /* appiconmaker.co_ios.zip */ = {isa = PBXFileReference; lastKnownFileType = archive.zip; name = appiconmaker.co_ios.zip; path = ../../../../../Nextcloud/temp/appiconmaker.co_ios.zip; sourceTree = "<group>"; };
+		E550E0C2243BCB16009A8AF7 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = ../../../../../Nextcloud/temp/logo.png; sourceTree = "<group>"; };
+		E5A172412438B08300D53C84 /* covidIsolate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = covidIsolate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5A172442438B08300D53C84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E5A172462438B08300D53C84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		E5A172482438B08300D53C84 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -24,6 +39,9 @@
 		E5A1724D2438B08500D53C84 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		E5A172502438B08500D53C84 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E5A172522438B08500D53C84 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		E5A17264243934D900D53C84 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
+		E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = "<group>"; };
+		E5A1726B2439374500D53C84 /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -48,7 +66,7 @@
 		E5A172422438B08300D53C84 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				E5A172412438B08300D53C84 /* covid-isolate.app */,
+				E5A172412438B08300D53C84 /* covidIsolate.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -56,7 +74,10 @@
 		E5A172432438B08300D53C84 /* covid-isolate */ = {
 			isa = PBXGroup;
 			children = (
+				E5A1725E243931D900D53C84 /* Data */,
+				E5A17258243924B900D53C84 /* Resources */,
 				E5A172442438B08300D53C84 /* AppDelegate.swift */,
+				E550E0BD243B765D009A8AF7 /* RSAUtils.swift */,
 				E5A172462438B08300D53C84 /* SceneDelegate.swift */,
 				E5A172482438B08300D53C84 /* ContentView.swift */,
 				E5A1724A2438B08500D53C84 /* Assets.xcassets */,
@@ -75,12 +96,35 @@
 			path = "Preview Content";
 			sourceTree = "<group>";
 		};
+		E5A17258243924B900D53C84 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				E550E0C1243BCB16009A8AF7 /* appiconmaker.co_ios.zip */,
+				E550E0C2243BCB16009A8AF7 /* logo.png */,
+				E550E0C0243BCB16009A8AF7 /* logo.xcf */,
+				E5A17263243934D900D53C84 /* Model.xcdatamodeld */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		E5A1725E243931D900D53C84 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */,
+				E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */,
+				E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */,
+				E5A1726B2439374500D53C84 /* User+CoreDataProperties.swift */,
+			);
+			name = Data;
+			path = Resources;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		E5A172402438B08300D53C84 /* covid-isolate */ = {
+		E5A172402438B08300D53C84 /* covidIsolate */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = E5A172552438B08500D53C84 /* Build configuration list for PBXNativeTarget "covid-isolate" */;
+			buildConfigurationList = E5A172552438B08500D53C84 /* Build configuration list for PBXNativeTarget "covidIsolate" */;
 			buildPhases = (
 				E5A1723D2438B08300D53C84 /* Sources */,
 				E5A1723E2438B08300D53C84 /* Frameworks */,
@@ -90,9 +134,9 @@
 			);
 			dependencies = (
 			);
-			name = "covid-isolate";
+			name = covidIsolate;
 			productName = "covid-isolate";
-			productReference = E5A172412438B08300D53C84 /* covid-isolate.app */;
+			productReference = E5A172412438B08300D53C84 /* covidIsolate.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -110,7 +154,7 @@
 					};
 				};
 			};
-			buildConfigurationList = E5A1723C2438B08300D53C84 /* Build configuration list for PBXProject "covid-isolate" */;
+			buildConfigurationList = E5A1723C2438B08300D53C84 /* Build configuration list for PBXProject "covidIsolate" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -123,7 +167,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				E5A172402438B08300D53C84 /* covid-isolate */,
+				E5A172402438B08300D53C84 /* covidIsolate */,
 			);
 		};
 /* End PBXProject section */
@@ -133,8 +177,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E550E0C3243BCB16009A8AF7 /* logo.xcf in Resources */,
 				E5A172512438B08500D53C84 /* LaunchScreen.storyboard in Resources */,
+				E550E0C5243BCB16009A8AF7 /* logo.png in Resources */,
 				E5A1724E2438B08500D53C84 /* Preview Assets.xcassets in Resources */,
+				E550E0C4243BCB16009A8AF7 /* appiconmaker.co_ios.zip in Resources */,
 				E5A1724B2438B08500D53C84 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,9 +193,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E514B574243B3D8300571678 /* ContactList+CoreDataClass.swift in Sources */,
 				E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */,
+				E514B575243B3D8300571678 /* ContactList+CoreDataProperties.swift in Sources */,
 				E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */,
+				E550E0BE243B765D009A8AF7 /* RSAUtils.swift in Sources */,
+				E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */,
+				E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */,
 				E5A172492438B08300D53C84 /* ContentView.swift in Sources */,
+				E5A17265243934D900D53C84 /* Model.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,7 +376,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		E5A1723C2438B08300D53C84 /* Build configuration list for PBXProject "covid-isolate" */ = {
+		E5A1723C2438B08300D53C84 /* Build configuration list for PBXProject "covidIsolate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E5A172532438B08500D53C84 /* Debug */,
@@ -332,7 +385,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		E5A172552438B08500D53C84 /* Build configuration list for PBXNativeTarget "covid-isolate" */ = {
+		E5A172552438B08500D53C84 /* Build configuration list for PBXNativeTarget "covidIsolate" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				E5A172562438B08500D53C84 /* Debug */,
@@ -342,6 +395,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCVersionGroup section */
+		E5A17263243934D900D53C84 /* Model.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				E5A17264243934D900D53C84 /* Model.xcdatamodel */,
+			);
+			currentVersion = E5A17264243934D900D53C84 /* Model.xcdatamodel */;
+			name = Model.xcdatamodeld;
+			path = ../../Model.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = E5A172392438B08300D53C84 /* Project object */;
 }

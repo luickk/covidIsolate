@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:covid-isolate.xcodeproj">
+      location = "self:/Users/luickklippel/Documents/projekte/covid-isolate/covidIsolate.xcodeproj">
    </FileRef>
 </Workspace>
