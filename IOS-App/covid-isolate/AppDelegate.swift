@@ -23,13 +23,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
  
             let newUser = User(entity: User.entity(), insertInto: context)
             newUser.id = UUID().uuidString
-            newUser.publicKey = "-------------test-------------"
-            newUser.privateKey = "-------------test-------------"
             newUser.dailySync = false
             newUser.infectiousIdentifier = false
             newUser.registrationDate = Date()
+            newUser.keyPairChainTagName = newUser.id
+
+            let (publicKey, privateKey) = RSACrypto.generateRSAKeyPair(tagName: newUser.keyPairChainTagName!)
+            RSACrypto.addRSAPrivateKey(RSACrypto.secKeyToString(key: privateKey!)!, tagName: newUser.keyPairChainTagName!+"-private")
+            RSACrypto.addRSAPublicKey(RSACrypto.secKeyToString(key: publicKey!)!, tagName: newUser.keyPairChainTagName!+"-public")
             
-            
+                           
             let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
             newContact.distance = 0
             newContact.contactId = "-------------test-cid----------"

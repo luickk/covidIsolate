@@ -10,6 +10,8 @@
 		E514B574243B3D8300571678 /* ContactList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */; };
 		E514B575243B3D8300571678 /* ContactList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */; };
 		E550E0BE243B765D009A8AF7 /* RSACrypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0BD243B765D009A8AF7 /* RSACrypto.swift */; };
+		E550E0C8243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */; };
+		E550E0C9243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */; };
 		E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172442438B08300D53C84 /* AppDelegate.swift */; };
 		E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172462438B08300D53C84 /* SceneDelegate.swift */; };
 		E5A172492438B08300D53C84 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172482438B08300D53C84 /* ContentView.swift */; };
@@ -25,6 +27,8 @@
 		E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactList+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ContactList+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E550E0BD243B765D009A8AF7 /* RSACrypto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RSACrypto.swift; sourceTree = "<group>"; };
+		E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataClass.swift"; sourceTree = "<group>"; };
+		E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E5A172412438B08300D53C84 /* covidIsolate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = covidIsolate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5A172442438B08300D53C84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E5A172462438B08300D53C84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -101,6 +105,8 @@
 		E5A1725E243931D900D53C84 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */,
+				E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */,
 				E514B572243B3D8300571678 /* ContactList+CoreDataClass.swift */,
 				E514B573243B3D8300571678 /* ContactList+CoreDataProperties.swift */,
 				E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */,
@@ -187,7 +193,9 @@
 				E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */,
 				E550E0BE243B765D009A8AF7 /* RSACrypto.swift in Sources */,
 				E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */,
+				E550E0C8243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift in Sources */,
 				E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */,
+				E550E0C9243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift in Sources */,
 				E5A172492438B08300D53C84 /* ContentView.swift in Sources */,
 				E5A17265243934D900D53C84 /* Model.xcdatamodeld in Sources */,
 			);

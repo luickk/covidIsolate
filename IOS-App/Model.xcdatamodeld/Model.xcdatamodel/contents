@@ -5,16 +5,21 @@
         <attribute name="dateTime" optional="YES" attributeType="String"/>
         <attribute name="distance" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
+    <entity name="PersonnalContactIdList" representedClassName="PersonnalContactIdList" syncable="YES">
+        <attribute name="contactId" optional="YES" attributeType="String"/>
+        <attribute name="dateTime" optional="YES" attributeType="String"/>
+        <attribute name="userId" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="User" representedClassName="User" syncable="YES">
         <attribute name="dailySync" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="id" optional="YES" attributeType="String"/>
         <attribute name="infectiousIdentifier" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="privateKey" optional="YES" attributeType="String"/>
-        <attribute name="publicKey" optional="YES" attributeType="String"/>
+        <attribute name="keyPairChainTagName" optional="YES" attributeType="String"/>
         <attribute name="registrationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
     </entity>
     <elements>
         <element name="ContactList" positionX="-36" positionY="54" width="128" height="88"/>
-        <element name="User" positionX="-36" positionY="9" width="128" height="133"/>
+        <element name="User" positionX="-36" positionY="9" width="128" height="118"/>
+        <element name="PersonnalContactIdList" positionX="-36" positionY="54" width="128" height="88"/>
     </elements>
 </model>

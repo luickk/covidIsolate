@@ -17,9 +17,8 @@ extension User : Identifiable {
         return NSFetchRequest<User>(entityName: "User")
     }
 
+    @NSManaged public var keyPairChainTagName: String?
     @NSManaged public var id: String?
-    @NSManaged public var publicKey: String?
-    @NSManaged public var privateKey: String?
     @NSManaged public var infectiousIdentifier: Bool
     @NSManaged public var dailySync: Bool
     @NSManaged public var registrationDate: Date

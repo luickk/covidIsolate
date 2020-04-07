@@ -37,4 +37,9 @@ The central approach would mean that every user uploads his signed cIds of the l
 
 The decntralized approach would mean that the user downloads all the public keys of infected users and then makes the compraison/ infection status check locally on his device. This would be not only way simpler to realize, because the central instance would **only** serve as storage, which would reduce the risk of failures/ outages dramatically and would mean that the app is far more easier to scale. This approach would also mean that the **privacy of not infectious users is preserved**! Thus every user woul have to sync the (ideally two pKs)public keys of infected users to their device, in order to make the infection status check localy. Since there are a lot infected and not everybody has access to cheap and high bandwith internet, the sync of **new infected users** has to happen on an daily basis, because the number of such is dramatically lower and with that faster to snyc, than to sync all at once.
 
+
+#### Conclusion/ Final concept
+
+The goal is to find a compromise between privacy, reliability and performance with a focus on privacy while also keeping the reliability factor in mind. To achieve reliability, keeping things simple must be the first priority. This is one of the major advantages of a **decentral infection status check, which is only achievable via. a signature based contact ID**. Taking this route does not come wihtout tradeoffs, which are, as summarized above, that the key pairs must rotate to hinder tracking, etc. but still offers a great level of privacy while maintaining simplicity and scalability.
+
 ## Technical realisation

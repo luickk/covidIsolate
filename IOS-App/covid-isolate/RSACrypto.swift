@@ -274,11 +274,6 @@ public class RSACrypto: NSObject {
         // Delete any old lingering key with the same tag
         deleteRSAKeyFromKeychain(tagName)
 
-        let privkeyData = stripPrivateKeyHeader(privkey)
-        if ( privkeyData == nil ) {
-            return nil
-        }
-
         // Add persistent version of the key to system keychain
         // var prt: AnyObject?
         let queryFilter = [
@@ -286,7 +281,7 @@ public class RSACrypto: NSObject {
             String(kSecAttrKeyType)        : kSecAttrKeyTypeRSA,
             String(kSecAttrApplicationTag) : tagName,
             //String(kSecAttrAccessible)     : kSecAttrAccessibleWhenUnlocked,
-            String(kSecValueData)          : privkeyData!,
+            String(kSecValueData)          : privkey,
             String(kSecAttrKeyClass)       : kSecAttrKeyClassPrivate,
             String(kSecReturnPersistentRef): true
         ] as [String : Any]
@@ -311,11 +306,6 @@ public class RSACrypto: NSObject {
     static fileprivate func addRSAPublicKey(pubkey: Data, tagName: String) -> SecKey? {
         // Delete any old lingering key with the same tag
         deleteRSAKeyFromKeychain(tagName)
-
-        let pubkeyData = stripPublicKeyHeader(pubkey)
-        if ( pubkeyData == nil ) {
-            return nil
-        }
         
         // Add persistent version of the key to system keychain
         //var prt1: Unmanaged<AnyObject>?
@@ -323,7 +313,7 @@ public class RSACrypto: NSObject {
             String(kSecClass)              : kSecClassKey,
             String(kSecAttrKeyType)        : kSecAttrKeyTypeRSA,
             String(kSecAttrApplicationTag) : tagName,
-            String(kSecValueData)          : pubkeyData!,
+            String(kSecValueData)          : pubkey,
             String(kSecAttrKeyClass)       : kSecAttrKeyClassPublic,
             String(kSecReturnPersistentRef): true
         ] as [String : Any]
@@ -404,7 +394,7 @@ public class RSACrypto: NSObject {
         return decryptWithRSAKey(encryptedData, rsaKeyRef: keyRef!, padding: SecPadding())
     }
     
-    static public func generateRSAPublicKey(tagName: String) throws -> (SecKey?, SecKey) {
+    static public func generateRSAKeyPair(tagName: String) -> (SecKey?, SecKey?) {
         let tag = tagName.data(using: .utf8)!
          let attributes: [String: Any] =
              [kSecAttrKeyType as String:            kSecAttrKeyTypeRSA,
@@ -415,11 +405,9 @@ public class RSACrypto: NSObject {
          ]
         var error: Unmanaged<CFError>?
         
-        guard let privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error) else {
-            throw error!.takeRetainedValue() as Error
-        }
+        let privateKey = SecKeyCreateRandomKey(attributes as CFDictionary, &error)
         
-        let publicKey = SecKeyCopyPublicKey(privateKey)
+        let publicKey = SecKeyCopyPublicKey(privateKey!)
         
         return (publicKey, privateKey)
     }
@@ -450,5 +438,44 @@ public class RSACrypto: NSObject {
                                     data as CFData,
                                     signature as CFData,
                                     &error)
+    }
+    
+    static public func secKeyToString(key: SecKey?) -> String?{
+        var error:Unmanaged<CFError>?
+        if let cfdata = SecKeyCopyExternalRepresentation(key!, &error) {
+           let data:Data = cfdata as Data
+           let b64Key = data.base64EncodedString()
+           
+           return b64Key
+        }
+        return ""
+    }
+    static public func secKeyToData(key: SecKey?) -> Data?{
+         var error:Unmanaged<CFError>?
+         if let cfdata = SecKeyCopyExternalRepresentation(key!, &error) {
+            let data:Data = cfdata as Data
+            
+            return data
+         }
+         return nil
+     }
+    
+    static public func stringTosecKey(b64Key: String?) -> SecKey?{
+        guard let data2 = Data.init(base64Encoded: b64Key!) else {
+           return nil
+        }
+
+        let keyDict:[NSObject:NSObject] = [
+           kSecAttrKeyType: kSecAttrKeyTypeRSA,
+           kSecAttrKeyClass: kSecAttrKeyClassPublic,
+           kSecAttrKeySizeInBits: NSNumber(value: 512),
+           kSecReturnPersistentRef: true as NSObject
+        ]
+
+        guard let publicKey = SecKeyCreateWithData(data2 as CFData, keyDict as CFDictionary, nil) else {
+            return nil
+        }
+        
+        return publicKey
     }
 }
