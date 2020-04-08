@@ -41,5 +41,7 @@ The decntralized approach would mean that the user downloads all the public keys
 #### Conclusion/ Final concept
 
 The goal is to find a compromise between privacy, reliability and performance with a focus on privacy while also keeping the reliability factor in mind. To achieve reliability, keeping things simple must be the first priority. This is one of the major advantages of a **decentral infection status check, which is only achievable via. a signature based contact ID**. Taking this route does not come wihtout tradeoffs, which are, as summarized above, that the key pairs must rotate to hinder tracking, etc. but still offers a great level of privacy while maintaining simplicity and scalability.
+The only bottleneck being the users internet bandwith, because with new 4000 infected users per day, the size of public keys to download would be round about 8gb.
+Apart from that, this concept conclusion applies to all [contact tracing requirements](https://www.ccc.de/en/updates/2020/contact-tracing-requirements), made up by the[ CCC](https://www.ccc.de/).
 
 ## Technical realisation

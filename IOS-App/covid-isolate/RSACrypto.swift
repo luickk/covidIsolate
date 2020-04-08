@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 // params
-let algorithm: SecKeyAlgorithm = .rsaSignatureMessagePKCS1v15SHA512
+let signingAlgorithm: SecKeyAlgorithm = .rsaSignatureDigestPKCS1v15SHA512
 let useKeyHashes = false
 
 public class RSACrypto: NSObject {
@@ -412,29 +412,23 @@ public class RSACrypto: NSObject {
         return (publicKey, privateKey)
     }
     
-    static public func createRSASignature(privateKey: SecKey, data: CFData) throws ->  Data? {
-        guard SecKeyIsAlgorithmSupported(privateKey, .sign, algorithm) else {
-            // throw an error
-            return nil
-        }
+    static public func createRSASignature(privateKey: SecKey, data: CFData) ->  Data? {
+        SecKeyIsAlgorithmSupported(privateKey, .sign, signingAlgorithm)
         var error: Unmanaged<CFError>?
-        guard let signature = SecKeyCreateSignature(privateKey,
-                                                    algorithm,
+        let signature = SecKeyCreateSignature(privateKey,
+                                                    signingAlgorithm,
                                                     data as CFData,
-                                                    &error) as Data? else {
-                                                        throw error!.takeRetainedValue() as Error
-        }
+                                                    &error) as Data?
         return signature
     }
     
     
-    static public func verifyRSASignature(publicKey: SecKey, signature: CFData, data: CFData) throws -> Bool {
-        guard SecKeyIsAlgorithmSupported(publicKey, .verify, algorithm) else {
-            return false
-        }
+    static public func verifyRSASignature(publicKey: SecKey, signature: CFData, data: CFData) -> Bool {
+        SecKeyIsAlgorithmSupported(publicKey, .verify, signingAlgorithm)
+        
         var error: Unmanaged<CFError>?
         return SecKeyVerifySignature(publicKey,
-                                    algorithm,
+                                    signingAlgorithm,
                                     data as CFData,
                                     signature as CFData,
                                     &error)
