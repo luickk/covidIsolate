@@ -32,6 +32,8 @@ struct ContentView: View {
 
     @State var showKeyPrivateAlert = false
     @State var showKeyPublicAlert = false
+    @State var showGenTestPCId = false
+    @State var showGenTestPCIdVerify = false
     
     var body: some View {
         Group {
@@ -89,12 +91,35 @@ struct ContentView: View {
                         }) {
                            Text("Show secret public key")
                                .foregroundColor(Color.red)
-                            .padding([.leading, .trailing])
+                            .padding([ .leading, .trailing])
                        }
                         .alert(isPresented: self.$showKeyPublicAlert) {
                             Alert(title: Text("Your Public Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public"))!), dismissButton: .default(Text("I'll keep it secret!")))
                         }
 
+                        Button(action: {
+                            self.showGenTestPCId = true
+                        }) {
+                            Text("gen test PCId")
+                                .foregroundColor(Color.red)
+                                .padding([ .leading, .trailing])
+                        }
+                         .alert(isPresented: self.$showGenTestPCId) {
+                            Alert(title: Text("Personnal Contact Id"), message:     Text("s"), dismissButton: .default(Text("ok")))
+                         }
+                        
+                        Button(action: {
+                            self.showGenTestPCIdVerify = true
+                        }) {
+                            Text("validate generated test PCId")
+                                .foregroundColor(Color.red)
+                                .padding([ .leading, .trailing])
+                        }
+                         .alert(isPresented: self.$showGenTestPCIdVerify) {
+                            let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
+                            return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public")!))), dismissButton: .default(Text("ok")))
+                         }
+                        
                         Button(action: {}) {
                             Text("Show Personnal Contact ID's")
                         }
