@@ -26,7 +26,7 @@ Would require all users to sync massive amounts off data, because every cId(of t
 
 ### Signing
 
-The signing offers multiple mandatory advantages on the efficiency/ perfomance side, because, the encrypted cIds can be grouped by one public key. Which means that not every cIds of an infected user has to be published(uploaded to a central instance, so other useres can check their infection status), but only their public Key. Sadly, there is a tradeoff in privacy, because once the public key is published, users can be tracked, and potentially discriminated based up on their infection status since signing allows to group signatures by their public keys. 
+The signing offers multiple mandatory advantages on the efficiency/ perfomance side, because, the encrypted cIds can be grouped by one public key. Which means that not every cIds of an infected user has to be published(uploaded to a central instance, so other useres can check their infection status), but only their public Key. Sadly, there is a tradeoff in privacy, because once the public key is published, users can be tracked, and potentially discriminated based up on their infection status since signing allows to group signatures by their public keys.
 **This privacy flaw can only be prohibited if every users has at all times the option to change his identity (respectively all his identifiers such as private/public key and ID) and his key pair rotates every x amount of times(Ideally every two weeks, so only two public keys have to be published in the case of an infection, to guarantee a valid two week infection status check).**
 
 ##### Central infection status check
@@ -43,5 +43,9 @@ The decntralized approach would mean that the user downloads all the public keys
 The goal is to find a compromise between privacy, reliability and performance with a focus on privacy while also keeping the reliability factor in mind. To achieve reliability, keeping things simple must be the first priority. This is one of the major advantages of a **decentral infection status check, which is only achievable via. a signature based contact ID**. Taking this route does not come wihtout tradeoffs, which are, as summarized above, that the key pairs must rotate to hinder tracking, etc. but still offers a great level of privacy while maintaining simplicity and scalability.
 The only bottleneck being the users internet bandwith, because with new 4000 infected users per day, the size of public keys to download would be round about 8gb.
 Apart from that, this concept conclusion applies to all [contact tracing requirements](https://www.ccc.de/en/updates/2020/contact-tracing-requirements), made up by the[ CCC](https://www.ccc.de/).
+
+### Communication
+
+To exchange the personnal contact Id's, close contact is not just a requirement on a technical level but also a condition for the conveyancing of covid19. There are not many protocols that meet the "close contact" condition that are built in modern day smartphones except for Bluetooth. But there are also other conditions, such as anonymity and battery drain. Luckily Bluetooth meets most of them, except for anonymity since its packages include a mac address, which is a problem on some but not all devices, since a majority of modern cellpohones includes mac address randomisation(mac address and pCId change has to happen simultaneously). 
 
 ## Technical realisation
