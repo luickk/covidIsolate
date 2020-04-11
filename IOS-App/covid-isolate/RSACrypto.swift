@@ -2,7 +2,7 @@ import Foundation
 import Security
 
 // params
-let signingAlgorithm: SecKeyAlgorithm = .rsaSignatureDigestPKCS1v15SHA256
+let signingAlgorithm: SecKeyAlgorithm = .rsaSignatureDigestPKCS1v15SHA512
 let useKeyHashes = false
 
 public class RSACrypto: NSObject {
@@ -412,14 +412,14 @@ public class RSACrypto: NSObject {
         return (publicKey, privateKey)
     }
     
-    static public func createRSASignature(privateKey: SecKey, data: CFData) ->  Data? {
+    static public func createRSASignature(privateKey: SecKey, data: CFData) ->  CFData {
         SecKeyIsAlgorithmSupported(privateKey, .sign, signingAlgorithm)
         var error: Unmanaged<CFError>?
         let signature = SecKeyCreateSignature(privateKey,
                                                     signingAlgorithm,
                                                     data,
-                                                    &error) as Data?
-        return signature
+                                                    &error)
+        return signature!
     }
     
     
