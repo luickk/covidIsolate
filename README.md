@@ -4,8 +4,11 @@ covidIsolate is an open source app, designed to indicate if a subject (user of t
 The goal is to build the app as decentralized and anonymous as possible to prevent abuse, while poviding a secure and reliable platform to the enduser.
 Disclaimer: This app is just a prototype and could, due to the lack of resources, not be tested in the real world!
 
-## Technical Concept
+## Concept
 
+Social contact tracing is based on a very simple concept, since an encounter with another person is a very binary operation, which can be stored and identified easily. The general approach is that every user device emits a token(personnal contact ID), which can be stored by users which are physically close, in a way that they can later compare there collected tokens with a database and check if they have been in contact with a user who got infected. If so, this user gets a notice which requests him to stay at home for a certain amount of time, and check for symptoms. So the challenge really is not to built the application, but to provide a performance, secure and private platform.
+
+## Technical Concept
 
 ### Contact ID encryption vs signing
 
