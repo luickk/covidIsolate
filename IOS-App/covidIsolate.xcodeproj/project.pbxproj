@@ -13,6 +13,8 @@
 		E550E0C8243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */; };
 		E550E0C9243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */; };
 		E550E0CB243DE634009A8AF7 /* covidIsolateUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = E550E0CA243DE634009A8AF7 /* covidIsolateUtils.swift */; };
+		E59DFBEC244330B400045C31 /* BLEPeripheral.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBEB244330B400045C31 /* BLEPeripheral.swift */; };
+		E59DFBEE2443333F00045C31 /* BLECentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBED2443333F00045C31 /* BLECentral.swift */; };
 		E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172442438B08300D53C84 /* AppDelegate.swift */; };
 		E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172462438B08300D53C84 /* SceneDelegate.swift */; };
 		E5A172492438B08300D53C84 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172482438B08300D53C84 /* ContentView.swift */; };
@@ -31,6 +33,8 @@
 		E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E550E0CA243DE634009A8AF7 /* covidIsolateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = covidIsolateUtils.swift; sourceTree = "<group>"; };
+		E59DFBEB244330B400045C31 /* BLEPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEPeripheral.swift; sourceTree = "<group>"; };
+		E59DFBED2443333F00045C31 /* BLECentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECentral.swift; sourceTree = "<group>"; };
 		E5A172412438B08300D53C84 /* covidIsolate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = covidIsolate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5A172442438B08300D53C84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E5A172462438B08300D53C84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -81,6 +85,8 @@
 				E550E0BD243B765D009A8AF7 /* RSACrypto.swift */,
 				E5A172462438B08300D53C84 /* SceneDelegate.swift */,
 				E5A172482438B08300D53C84 /* ContentView.swift */,
+				E59DFBEB244330B400045C31 /* BLEPeripheral.swift */,
+				E59DFBED2443333F00045C31 /* BLECentral.swift */,
 				E5A1724A2438B08500D53C84 /* Assets.xcassets */,
 				E5A1724F2438B08500D53C84 /* LaunchScreen.storyboard */,
 				E5A172522438B08500D53C84 /* Info.plist */,
@@ -195,9 +201,11 @@
 				E514B575243B3D8300571678 /* ContactList+CoreDataProperties.swift in Sources */,
 				E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */,
 				E550E0BE243B765D009A8AF7 /* RSACrypto.swift in Sources */,
+				E59DFBEC244330B400045C31 /* BLEPeripheral.swift in Sources */,
 				E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */,
 				E550E0C8243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift in Sources */,
 				E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */,
+				E59DFBEE2443333F00045C31 /* BLECentral.swift in Sources */,
 				E550E0C9243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift in Sources */,
 				E550E0CB243DE634009A8AF7 /* covidIsolateUtils.swift in Sources */,
 				E5A172492438B08300D53C84 /* ContentView.swift in Sources */,

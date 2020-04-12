@@ -7,10 +7,13 @@
 //
 
 import SwiftUI
+import CoreBluetooth
 
 
 
 struct ContentView: View {
+    
+    // ui declarations
     @State private var toggle_beacon : Bool = true
     @State private var toggle_listening : Bool = true
     @Environment(\.managedObjectContext) var context
