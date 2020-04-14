@@ -48,6 +48,16 @@ Apart from that, this concept conclusion applies to all [contact tracing require
 
 ### Communication
 
-To exchange the personnal contact Id's, close contact is not just a requirement on a technical level but also a condition for the conveyancing of covid19. There are not many protocols that meet the "close contact" condition that are built in modern day smartphones except for Bluetooth. But there are also other conditions, such as anonymity and battery drain. Luckily Bluetooth meets most of them, except for anonymity since its packages include a mac address, which is a problem on some but not all devices, since a majority of modern cellpohones includes mac address randomisation(mac address and pCId change has to happen simultaneously).
+To exchange the personnal contact Id's, close contact is not just a requirement on a technical level but also a condition for the conveyancing of covid19. There are not many protocols that meet the "close contact" condition that are built in modern day smartphones except for Bluetooth LE. But there are also other conditions, such as anonymity and battery drain. Luckily Bluetooth meets most of them, except for anonymity since its packages include a mac address, which is a problem on some but not all devices, since a majority of modern cellpohones includes mac address randomisation(mac address and pCId change has to happen simultaneously).
 
 ## Technical realisation
+
+### Platform
+
+The concept requires the application to run 24/7 and to be close to the user, since Smartphones meet all of these requirements, they are best suited as a platform. The two most important platforms are Android and IOS, Android is more open and unsafe, whereas IOS often restricts the usage of background services and ble beacons.
+
+### Bluetooth BLE
+
+[BLE](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy) comes with two protocls GATT and GAP, both broadcast information wihtout requiring a pairing process, in contrast to the standard Bluetooth SSP. This is ideal for exchanging information on a temporary and singular basis, which is exactly what is needed since pairing would need too much power, time and the users permission to do so.
+BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data, which is required since this apps concept relies (such as all others) on a token (in this app called "personnal concept ID's") exchange between devices. 
+With that kept in mind, this app uses the GATT's central/ peripheral mode to discover each other and transfer data. 
