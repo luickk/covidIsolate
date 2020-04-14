@@ -13,6 +13,10 @@ import os
 
 class BLECentral : NSObject {
 
+    public static let covidIsolateServiceUUID = CBUUID(string: "86223527-b64e-475d-b646-bc45127e1cbb")
+    
+    public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceba")
+
     var centralManager: CBCentralManager!
 
     var discoveredPeripheral: CBPeripheral?
@@ -26,11 +30,11 @@ class BLECentral : NSObject {
 
     // MARK: - view lifecycle
     
-    public func load() {
+    public func loadBLECentral() {
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
     }
     
-    public func stop() {
+    public func stopBLECentral() {
         centralManager.stopScan()
         os_log("Scanning stopped")
 
@@ -45,7 +49,7 @@ class BLECentral : NSObject {
      */
     public func retrievePeripheral() {
         
-        let connectedPeripherals: [CBPeripheral] = (centralManager.retrieveConnectedPeripherals(withServices: [BLEPeripheral.covidIsolateServiceUUID]))
+        let connectedPeripherals: [CBPeripheral] = (centralManager.retrieveConnectedPeripherals(withServices: [BLECentral.covidIsolateServiceUUID]))
         
         os_log("Found connected Peripherals with transfer service: %@", connectedPeripherals)
         
@@ -55,7 +59,7 @@ class BLECentral : NSObject {
             centralManager.connect(connectedPeripheral, options: nil)
         } else {
             // We were not connected to our counterpart, so start scanning
-            centralManager.scanForPeripherals(withServices: [BLEPeripheral.covidIsolateServiceUUID],
+            centralManager.scanForPeripherals(withServices: [BLECentral.covidIsolateServiceUUID],
                                                options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
         }
     }
@@ -72,7 +76,7 @@ class BLECentral : NSObject {
         
         for service in (discoveredPeripheral.services ?? [] as [CBService]) {
             for characteristic in (service.characteristics ?? [] as [CBCharacteristic]) {
-                if characteristic.uuid == BLEPeripheral.characteristicUUID && characteristic.isNotifying {
+                if characteristic.uuid == BLECentral.characteristicUUID && characteristic.isNotifying {
                     // It is notifying, so unsubscribe
                     self.discoveredPeripheral?.setNotifyValue(false, for: characteristic)
                 }
@@ -226,7 +230,7 @@ extension BLECentral: CBCentralManagerDelegate {
         peripheral.delegate = self
         
         // Search only for services that match our UUID
-        peripheral.discoverServices([BLEPeripheral.covidIsolateServiceUUID])
+        peripheral.discoverServices([BLECentral.covidIsolateServiceUUID])
     }
     
     /*
@@ -254,9 +258,9 @@ extension BLECentral: CBPeripheralDelegate {
      */
     func peripheral(_ peripheral: CBPeripheral, didModifyServices invalidatedServices: [CBService]) {
         
-        for service in invalidatedServices where service.uuid == BLEPeripheral.covidIsolateServiceUUID {
+        for service in invalidatedServices where service.uuid == BLECentral.covidIsolateServiceUUID {
             os_log("Transfer service is invalidated - rediscover services")
-            peripheral.discoverServices([BLEPeripheral.covidIsolateServiceUUID])
+            peripheral.discoverServices([BLECentral.covidIsolateServiceUUID])
         }
     }
 
@@ -275,7 +279,7 @@ extension BLECentral: CBPeripheralDelegate {
         // Loop through the newly filled peripheral.services array, just in case there's more than one.
         guard let peripheralServices = peripheral.services else { return }
         for service in peripheralServices {
-            peripheral.discoverCharacteristics([BLEPeripheral.characteristicUUID], for: service)
+            peripheral.discoverCharacteristics([BLECentral.characteristicUUID], for: service)
         }
     }
     
@@ -293,7 +297,7 @@ extension BLECentral: CBPeripheralDelegate {
         
         // Again, we loop through the array, just in case and check if it's the right one
         guard let serviceCharacteristics = service.characteristics else { return }
-        for characteristic in serviceCharacteristics where characteristic.uuid == BLEPeripheral.characteristicUUID {
+        for characteristic in serviceCharacteristics where characteristic.uuid == BLECentral.characteristicUUID {
             // If it is, subscribe to it
             transferCharacteristic = characteristic
             peripheral.setNotifyValue(true, for: characteristic)
@@ -324,7 +328,7 @@ extension BLECentral: CBPeripheralDelegate {
             // Dispatch the text view update to the main queue for updating the UI, because
             // we don't know which thread this method will be called back on.
             DispatchQueue.main.async() {
-                self.textView.text = String(data: self.data, encoding: .utf8)
+                print(String(data: self.data, encoding: .utf8))
             }
             
             // Write test data
@@ -346,7 +350,7 @@ extension BLECentral: CBPeripheralDelegate {
         }
         
         // Exit if it's not the transfer characteristic
-        guard characteristic.uuid == BLEPeripheral.characteristicUUID else { return }
+        guard characteristic.uuid == BLECentral.characteristicUUID else { return }
         
         if characteristic.isNotifying {
             // Notification has started

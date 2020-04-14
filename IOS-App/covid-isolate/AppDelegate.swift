@@ -12,7 +12,10 @@ import Foundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-
+    
+    
+    let bleCentralManager = BLECentral()
+    let blePeripheralManager = BLEPeripheral()
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -22,21 +25,25 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         if !hasLaunchedBefore {
             
             let generatedUser = cIUtils.generateNewUser()
- 
+
             let newUser = User(entity: User.entity(), insertInto: context)
             newUser.id = generatedUser.id
             newUser.dailySync = generatedUser.dailySync
             newUser.infectiousIdentifier = generatedUser.infectiousIdentifier
             newUser.registrationDate = generatedUser.registrationDate
             newUser.keyPairChainTagName = generatedUser.keyPairChainTagName
-            
+
             let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
             newContact.distance = 0
             newContact.contactId = "-------------test-cid----------"
             newContact.dateTime = cIUtils.genStringTimeDateStamp()
-            
-            
-          }
+
+        }
+
+        // start ble comm
+        self.bleCentralManager.loadBLECentral()
+        self.blePeripheralManager.loadBLEPeripheral(context: context)
+        
         // Override point for customization after application launch.
         return true
     }

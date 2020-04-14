@@ -9,13 +9,16 @@
 import Foundation
 import UIKit
 import CoreBluetooth
+import CoreData
 import os
 
 class BLEPeripheral : NSObject {
 
-    public static let covidIsolateServiceUUID = CBUUID(string: "E20A39F4-73F5-4BC4-A12F-17D1AD07A961")
+    public static let covidIsolateServiceUUID = CBUUID(string: "86223527-b64e-475d-b646-bc45127e1cbb")
     
-    public static let characteristicUUID = CBUUID(string: "08590F7E-DB05-467E-8757-72F6FAEB13D4")
+    public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceb")
+    
+    var delContext = NSManagedObjectContext()
     
     var peripheralManager: CBPeripheralManager!
 
@@ -26,7 +29,8 @@ class BLEPeripheral : NSObject {
     
     // MARK: - View Lifecycle
     
-    public func load() {
+    func loadBLEPeripheral(context: NSManagedObjectContext) {
+        self.delContext = context
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
     }
     
@@ -38,7 +42,7 @@ class BLEPeripheral : NSObject {
      */
     static var sendingEOM = false
     
-    public func sendData() {
+    func sendData() {
         
         guard let transferCharacteristic = transferCharacteristic else {
             return
@@ -86,8 +90,7 @@ class BLEPeripheral : NSObject {
                 return
             }
             
-            let stringFromData = String(data: chunk, encoding: .utf8)
-            os_log("Sent %d bytes: %s", chunk.count, String(describing: stringFromData))
+            let stringFromData = String(data: chunk, encoding: .ascii)
             
             // It did send, so update our index
             sendDataIndex += amountToSend
@@ -118,7 +121,7 @@ class BLEPeripheral : NSObject {
         
         // Start with the CBMutableCharacteristic.
         let transferCharacteristic = CBMutableCharacteristic(type: BLEPeripheral.characteristicUUID,
-                                                         properties: [.notify, .writeWithoutResponse],
+                                                             properties: [.broadcast, .writeWithoutResponse],
                                                          value: nil,
                                                          permissions: [.readable, .writeable])
         
@@ -191,8 +194,13 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
     func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
         os_log("Central subscribed to characteristic")
         
+
+        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
+        
+        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+        
         // Get the data
-        dataToSend = "test".data(using: .utf8)!
+        dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
         
         // Reset the index
         sendDataIndex = 0

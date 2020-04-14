@@ -8,6 +8,7 @@
 
 import Foundation
 import Security
+import CoreData
 import CommonCrypto
 import CryptoKit
 
@@ -21,7 +22,7 @@ extension Digest {
     }
 }
 
-public class cIUtils {
+public class cIUtils : NSData {
     public struct User {
         var id: String
         var dailySync: Bool
@@ -29,7 +30,18 @@ public class cIUtils {
         var registrationDate: Date
         var keyPairChainTagName: String
     }
-
+    
+    public static func fetchSingleUserFromCoreDb(context: NSManagedObjectContext) -> User?{
+        var user:User = User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
+        do {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
+            fetchRequest.fetchLimit = 1
+            let objects = try context.fetch(fetchRequest) as! [User]
+            user = objects[0]
+        } catch {
+        }
+        return user
+    }
     public static func genStringTimeDateStamp() -> String{
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm,d:MMM:y"
@@ -53,9 +65,8 @@ public class cIUtils {
     
     
     public static func verifyPersonnalContactId(personnalContactId: [UInt8], publicKey: SecKey) -> Bool {
-        let signedHashDigestCount:Int = 344
-        var signature = personnalContactId[personnalContactId.index(personnalContactId.startIndex, offsetBy: 64)...]
-        var unsignedContactIdHashDigest = personnalContactId[..<personnalContactId.index(personnalContactId.endIndex, offsetBy: -256)]
+        let signature = personnalContactId[personnalContactId.index(personnalContactId.startIndex, offsetBy: 64)...]
+        let unsignedContactIdHashDigest = personnalContactId[..<personnalContactId.index(personnalContactId.endIndex, offsetBy: -256)]
         
         let cFsignature = CFDataCreate(kCFAllocatorDefault, Array(signature), signature.count)
         let cFunsignedContactIdHashDigest = CFDataCreate(kCFAllocatorDefault, Array(unsignedContactIdHashDigest), unsignedContactIdHashDigest.count)
