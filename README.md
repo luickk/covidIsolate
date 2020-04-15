@@ -10,57 +10,33 @@ Social contact tracing is based on a very simple concept, since an encounter wit
 
 ## Technical Concept
 
-### User identifiers
+#### Token(pCId) exchange & storage (Contact ID encryption vs signing, centralized vs decentralized)
 
-#### Id
+##### Encryption
 
-Randomly generated RFC 4122 version 15 UUID
-
-#### Public/ Privat RSA Key Pair
-
-2048bit RSA Key Pair
-
-### Time definitions
-
-### contact event time
-
-The time two devices need to be close until the token(pCId) exchange happens
-
-### isolation time
-
-The time a user is suggested to stay home after his infection status check was positive
-
-### infection time
-
-The time a user was infectious for
-
-### Token(pCId) exchange & storage (Contact ID encryption vs signing, centralized vs decentralized)
-
-#### Encryption
-
-![ecnryption concept sketch](Media/concept.jpg)
+![encryption concept sketch](Media/concept.jpg)
 
 The encryption of the cId offers more privacy because the encypted cId, which is spread by the Bluetooth beacon, can not be grouped by any attribute and are completely unique. But it would also mean, that every single contact Id(for the last two weeks), of an infected user, would have to be uploaded to a central instance, so other users are able to check on their infection status. This would prohibit discrimination or tracking of users after their public key(privateKey or ID) was leaked or they got infected and their public key is published because their cIds can not be grouped/ identified by their public key or any other attribute.
 
 
-##### Central infection status check
+###### Central infection status check
 
 The central approach for encrypted cIds would require the central instance to not only store, but also to compare the cIds of infected users with all the collected cIds of every user who make their daily infection status check. Which increases the amount of complexity and required infrastructure of the central instance and thus the risk of failure/ outages. It would also decrease the amount of privacy since every user uploads all his cIds for the time a infected is infectious(infection time) to the central instance, which could be easilly abused by the cinstance owner.
 
-##### Decentral infection status check
+###### Decentral infection status check
 
 Would require all users to sync massive amounts off data, because every cId(of the last two weeks) of an infectious user would have to be downloaded to all devices, which is not even remotely possible with the current/ average bandwith per user.
 
-### Signing
+##### Signing
 
 The signing offers multiple mandatory advantages on the efficiency/ perfomance side, because, the encrypted cIds can be grouped by one public key. Which means that not every cIds of an infected user has to be published(uploaded to a central instance, so other useres can check their infection status), but only their public Key. Sadly, there is a tradeoff in privacy, because once the public key is published, users can be tracked, and potentially discriminated based up on their infection status since signing allows to group signatures by their public keys.
 **This privacy flaw can only be prohibited if every users has at all times the option to change his identity (respectively all his identifiers such as private/public key and ID) and his key pair rotates every infection time cycle(to guarantee a valid infection status check for the time an infected was infectious).**
 
-##### Central infection status check
+###### Central infection status check
 
 The central approach would mean that every user uploads his signed cIds of the last two weeks to a central instance. And the comparison/ infection status check process of the signed cIds with the public keys of infected users, would be done on the central instance. That would require a huge amount of proceccing and complexity, because all public keys would have to be compare with all cIds, which makes the central approach unrealistic and overcomplicated.
 
-##### Decentral infection status check
+###### Decentral infection status check
 
 The decntralized approach would mean that the user downloads all the public keys of infected users and then makes the compraison/ infection status check locally on his device. This would be not only way simpler to realize, because the central instance would **only** serve as storage, which would reduce the risk of failures/ outages dramatically and would mean that the app is far more easier to scale. This approach would also mean that the **privacy of not infectious users is preserved**! Thus every user woul have to sync the (ideally two pKs)public keys of infected users to their device, in order to make the infection status check localy. Since there are a lot infected and not everybody has access to cheap and high bandwith internet, the sync of **new infected users** has to happen on an daily basis, because the number of such is dramatically lower and with that faster to snyc, than to sync all at once.
 
@@ -82,7 +58,7 @@ The concept requires the application to run 24/7 and to be close to the user, si
 
 ### Bluetooth BLE
 
-![ecnryption concept sketch](Media/BLE.jpg)
+![bluetooth le concept](Media/BLE.jpg)
 
 [BLE](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy) comes with two protocls GATT and GAP, both broadcast information wihtout requiring a pairing process, in contrast to the standard Bluetooth SSP. This is ideal for exchanging information on a temporary and singular basis, which is exactly what is needed since pairing would need too much power, time and the users permission to do so.
 BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data, which is required since this apps concept relies (such as all others) on a token (pCId) exchange between devices.
@@ -105,3 +81,29 @@ The pCId represents the hashed(sha256) result of the ID(generated random RFC 412
   All gathered pCIds and own generated public Keys are stored in apples [CoreData DB](https://developer.apple.com/documentation/coredata)
 #### Android
 // TODO
+
+## Definitions
+
+### User identifiers:
+
+#### -Id
+
+Randomly generated RFC 4122 version 15 UUID
+
+#### -Public/ Privat RSA Key Pair
+
+2048bit RSA Key Pair
+
+### Time definitions:
+
+#### -contact event time
+
+The time two devices need to be close until the token(pCId) exchange happens
+
+#### -isolation time
+
+The time a user is suggested to stay home after his infection status check was positive
+
+#### -infection time
+
+The time a user was infectious for
