@@ -58,7 +58,7 @@ The concept requires the application to run 24/7 and to be close to the user, si
 
 ### Bluetooth BLE
 
-![bluetooth le concept](Media/BLE.jpg)
+![bluetooth le concept](Media/BLE.JPG)
 
 [BLE](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy) comes with two protocls GATT and GAP, both broadcast information wihtout requiring a pairing process, in contrast to the standard Bluetooth SSP. This is ideal for exchanging information on a temporary and singular basis, which is exactly what is needed since pairing would need too much power, time and the users permission to do so.
 BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data, which is required since this apps concept relies (such as all others) on a token (pCId) exchange between devices.
