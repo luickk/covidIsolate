@@ -9,6 +9,7 @@
 import Foundation
 import UIKit
 import CoreBluetooth
+import CoreData
 import os
 
 class BLECentral : NSObject {
@@ -18,6 +19,7 @@ class BLECentral : NSObject {
     public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceba")
 
     var centralManager: CBCentralManager!
+    var delContext = NSManagedObjectContext()
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
@@ -30,7 +32,8 @@ class BLECentral : NSObject {
 
     // MARK: - view lifecycle
     
-    public func loadBLECentral() {
+    public func loadBLECentral(context: NSManagedObjectContext) {
+        self.delContext = context
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
     }
     
@@ -331,11 +334,18 @@ extension BLECentral: CBPeripheralDelegate {
                 print(String(data: self.data, encoding: .utf8))
             }
             
-            // Write test data
+            // received public contact ID from peripheral, sending own pCId
+            let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
+            
+            let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+            
+            // Get the data
+            let dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
+            // setting pCId to transfer data
+            data = dataToSend
             writeData()
         } else {
-            // Otherwise, just append the data to what we have previously received.
-            data.append(characteristicData)
+            
         }
     }
 
@@ -368,7 +378,8 @@ extension BLECentral: CBPeripheralDelegate {
      */
     func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         os_log("Peripheral is ready, send data")
-        writeData()
+        // not sending data, waiting for public contact id from peripheral
+        // writeData()
     }
     
 }

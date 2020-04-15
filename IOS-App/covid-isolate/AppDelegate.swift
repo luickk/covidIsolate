@@ -41,7 +41,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         // start ble comm
-        self.bleCentralManager.loadBLECentral()
+        self.bleCentralManager.loadBLECentral(context: context)
         self.blePeripheralManager.loadBLEPeripheral(context: context)
         
         // Override point for customization after application launch.

@@ -6,11 +6,35 @@ Disclaimer: This app is just a prototype and could, due to the lack of resources
 
 ## Concept
 
-Social contact tracing is based on a very simple concept, since an encounter with another person is a very binary operation, which can be stored and identified easily. The general approach is that every user device emits a token(personnal contact ID), which can be stored by users which are physically close, in a way that they can later compare there collected tokens with a database and check if they have been in contact with a user who got infected. If so, this user gets a notice which requests him to stay at home for a certain amount of time, and check for symptoms. So the challenge really is not to built the application, but to provide a performant, decentral, secure and private platform. A major part of the privacy aspect is the encryption, randomisation of the generated personnal contact ID's or tokens. There are three ways to achieve the randomisation/ encryption aspect, being: [encryption](https://de.wikipedia.org/wiki/Advanced_Encryption_Standard), [signing](https://en.wikipedia.org/wiki/RSA_(cryptosystem)#Signing_messages) and hashing(https://en.wikipedia.org/wiki/Hash_function). Hashing wouldn't be very performant and thus is not found in the consideration(*contact id encryption vs signing*).
+Social contact tracing is based on a very simple concept, since an encounter with another person is a very binary operation, which can be stored and identified easily. The general approach is that every user device emits a token(personnal contact ID), which can be stored by users which are physically close, in a way that they can later compare there collected tokens with a database and check if they have been in contact with a user who got infected. If so, this user gets a notice which requests him to stay at home for a certain amount of time(isolation time), and check for symptoms. So the challenge really is not to built the application, but to provide a performant, decentral, secure and private platform. A major part of the privacy aspect is the encryption, randomisation of the generated personnal contact ID's or tokens. There are three ways to achieve the randomisation/ encryption aspect, being: [encryption](https://de.wikipedia.org/wiki/Advanced_Encryption_Standard), [signing](https://en.wikipedia.org/wiki/RSA_(cryptosystem)#Signing_messages) and hashing(https://en.wikipedia.org/wiki/Hash_function). Hashing wouldn't be very performant and thus is not found in the consideration(*contact id encryption vs signing*).
 
 ## Technical Concept
 
-### Contact ID encryption vs signing
+### User identifiers
+
+#### Id
+
+Randomly generated RFC 4122 version 15 UUID
+
+#### Public/ Privat RSA Key Pair
+
+2048bit RSA Key Pair
+
+### Time definitions
+
+### contact event time
+
+The time two devices need to be close until the token(pCId) exchange happens
+
+### isolation time
+
+The time a user is suggested to stay home after his infection status check was positive
+
+### infection time
+
+The time a user was infectious for
+
+### Token(pCId) exchange & storage (Contact ID encryption vs signing, centralized vs decentralized)
 
 #### Encryption
 
@@ -21,7 +45,7 @@ The encryption of the cId offers more privacy because the encypted cId, which is
 
 ##### Central infection status check
 
-The central approach for encrypted cIds would require the central instance to not only store, but also to compare the cIds of infected users with all the collected cIds of every user who make their daily infection status check. Which increases the amount of complexity and required infrastructure of the central instance and thus the risk of failure/ outages. It would also decrease the amount of privacy since every user uploads all his cIds for the last x amount of time to the central instance, which could be easilly abused by the cinstance owner.
+The central approach for encrypted cIds would require the central instance to not only store, but also to compare the cIds of infected users with all the collected cIds of every user who make their daily infection status check. Which increases the amount of complexity and required infrastructure of the central instance and thus the risk of failure/ outages. It would also decrease the amount of privacy since every user uploads all his cIds for the time a infected is infectious(infection time) to the central instance, which could be easilly abused by the cinstance owner.
 
 ##### Decentral infection status check
 
@@ -30,7 +54,7 @@ Would require all users to sync massive amounts off data, because every cId(of t
 ### Signing
 
 The signing offers multiple mandatory advantages on the efficiency/ perfomance side, because, the encrypted cIds can be grouped by one public key. Which means that not every cIds of an infected user has to be published(uploaded to a central instance, so other useres can check their infection status), but only their public Key. Sadly, there is a tradeoff in privacy, because once the public key is published, users can be tracked, and potentially discriminated based up on their infection status since signing allows to group signatures by their public keys.
-**This privacy flaw can only be prohibited if every users has at all times the option to change his identity (respectively all his identifiers such as private/public key and ID) and his key pair rotates every x amount of times(Ideally every two weeks, so only two public keys have to be published in the case of an infection, to guarantee a valid two week infection status check).**
+**This privacy flaw can only be prohibited if every users has at all times the option to change his identity (respectively all his identifiers such as private/public key and ID) and his key pair rotates every infection time cycle(to guarantee a valid infection status check for the time an infected was infectious).**
 
 ##### Central infection status check
 
@@ -58,6 +82,26 @@ The concept requires the application to run 24/7 and to be close to the user, si
 
 ### Bluetooth BLE
 
+![ecnryption concept sketch](Media/BLE.jpg)
+
 [BLE](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy) comes with two protocls GATT and GAP, both broadcast information wihtout requiring a pairing process, in contrast to the standard Bluetooth SSP. This is ideal for exchanging information on a temporary and singular basis, which is exactly what is needed since pairing would need too much power, time and the users permission to do so.
-BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data, which is required since this apps concept relies (such as all others) on a token (in this app called "personnal concept ID's") exchange between devices. 
-With that kept in mind, this app uses the GATT's central/ peripheral mode to discover each other and transfer data. 
+BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data, which is required since this apps concept relies (such as all others) on a token (pCId) exchange between devices.
+With that kept in mind, this app uses the GATT's central/ peripheral mode to discover each other and transfer data.
+
+Each app has a BLE peripheral and central background service running, the peripheral is constantly checking for new centrals which privide a covidIsolate service running. Once found, they wait for a certain amount of time(contact event time) before they connect to the service and the pCId exchange is happening. A double connect and exchange is prohibited by a slight one to two second variation in the required contact event time and a temp caching of last contacts to also hinder double entries to each users contact list.
+
+### Personnal contact ID generation
+
+The pCId represents the hashed(sha256) result of the ID(generated random RFC 4122 version 15 UUID) concatenated with a timeDate stamp. The hash is then signed(PKCS1v15)(more about this consideration can be found under "Contact ID encryption vs signing"), the resulting byte array concatenated with the raw unsigned hash represents the **personnal contact ID**.
+
+
+### Infection status check
+
+// TODO
+
+### Personnal contacts storage
+
+#### IOS
+  All gathered pCIds and own generated public Keys are stored in apples [CoreData DB](https://developer.apple.com/documentation/coredata)
+#### Android
+// TODO

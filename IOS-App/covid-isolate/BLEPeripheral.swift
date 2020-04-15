@@ -18,9 +18,8 @@ class BLEPeripheral : NSObject {
     
     public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceb")
     
-    var delContext = NSManagedObjectContext()
-    
     var peripheralManager: CBPeripheralManager!
+    var delContext = NSManagedObjectContext()
 
     var transferCharacteristic: CBMutableCharacteristic?
     var connectedCentral: CBCentral?
@@ -121,7 +120,7 @@ class BLEPeripheral : NSObject {
         
         // Start with the CBMutableCharacteristic.
         let transferCharacteristic = CBMutableCharacteristic(type: BLEPeripheral.characteristicUUID,
-                                                             properties: [.broadcast, .writeWithoutResponse],
+                                                             properties: [.notify, .writeWithoutResponse],
                                                          value: nil,
                                                          permissions: [.readable, .writeable])
         
