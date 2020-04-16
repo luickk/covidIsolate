@@ -6,6 +6,7 @@
 //  Copyright © 2020 luick klippel. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import UIKit
 import CoreBluetooth
@@ -18,6 +19,11 @@ class BLEPeripheral : NSObject {
     
     public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceb")
     
+    public static var loaded = false
+    
+    let personnalContactIdSize = 320
+    var receiveBuffer:Data = Data()
+    
     var peripheralManager: CBPeripheralManager!
     var delContext = NSManagedObjectContext()
 
@@ -29,8 +35,20 @@ class BLEPeripheral : NSObject {
     // MARK: - View Lifecycle
     
     func loadBLEPeripheral(context: NSManagedObjectContext) {
+        Alert(title: Text("Info"), message:     Text("listener loaded"), dismissButton: .default(Text("ok")))
+        BLEPeripheral.loaded = true
         self.delContext = context
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
+    }
+    
+    func stopBLEPeripheral() {
+        BLEPeripheral.loaded = false
+        peripheralManager.stopAdvertising()
+        os_log("Adertising stopped")
+
+        receiveBuffer.removeAll(keepingCapacity: false)
+        dataToSend.removeAll(keepingCapacity: false)
+        sendDataIndex = 0
     }
     
     // peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
@@ -39,7 +57,7 @@ class BLEPeripheral : NSObject {
     /*
      *  Sends the next amount of data to the connected central
      */
-    static var sendingEOM = false
+    static var sendingEOM = true
     
     func sendData() {
         
@@ -237,7 +255,13 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
                 let stringFromData = String(data: requestValue, encoding: .utf8) else {
                     continue
             }
-            
+            receiveBuffer.append(requestValue)
+            if receiveBuffer.count == personnalContactIdSize {
+                let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
+                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+                receiveBuffer.removeAll()
+                print("added pCId to pCId List")
+            }
             os_log("Received write request of %d bytes: %s", requestValue.count, stringFromData)
             
         }

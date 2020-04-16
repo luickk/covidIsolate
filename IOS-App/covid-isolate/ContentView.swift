@@ -17,6 +17,9 @@ struct ContentView: View {
     @State private var toggle_beacon : Bool = true
     @State private var toggle_listening : Bool = true
     @Environment(\.managedObjectContext) var context
+    
+    let bleCentralManager = BLECentral()
+    let blePeripheralManager = BLEPeripheral()
 
     @FetchRequest(
         entity: User.entity(),
@@ -55,10 +58,22 @@ struct ContentView: View {
                 
                 Toggle(isOn: $toggle_beacon) {
                     Text("Beacon")
+                }.onTapGesture {
+                    if self.toggle_beacon && !BLECentral.loaded {
+                        self.bleCentralManager.loadBLECentral(context: self.context)
+                    } else if !self.toggle_beacon && BLECentral.loaded{
+                        self.bleCentralManager.stopBLECentral()
+                    }
                 }
                 .padding()
                 Toggle(isOn: $toggle_listening) {
                     Text("Listening")
+                }.onTapGesture {
+                    if self.toggle_listening && !BLEPeripheral.loaded{
+                        self.blePeripheralManager.loadBLEPeripheral(context: self.context)
+                    } else if !self.toggle_listening && BLEPeripheral.loaded{
+                       self.blePeripheralManager.stopBLEPeripheral()
+                    }
                 }
                 .padding()
                 Button(action: {}) {
@@ -108,7 +123,10 @@ struct ContentView: View {
                                 .padding([ .leading, .trailing])
                         }
                          .alert(isPresented: self.$showGenTestPCId) {
-                            Alert(title: Text("Personnal Contact Id"), message:     Text("s"), dismissButton: .default(Text("ok")))
+                             let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
+                            
+                            print(pCI.count)
+                            return Alert(title: Text("Personnal Contact Id"), message: Text(String(bytes: pCI, encoding: .ascii)!), dismissButton: .default(Text("ok")))
                          }
                         
                         Button(action: {
@@ -120,6 +138,7 @@ struct ContentView: View {
                         }
                          .alert(isPresented: self.$showGenTestPCIdVerify) {
                             let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
+                            
                             return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public")!))), dismissButton: .default(Text("ok")))
                          }
                         
@@ -150,7 +169,18 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             
-        }
+        }.onAppear(perform: {
+            // start ble comm
+            if self.toggle_beacon && !BLECentral.loaded {
+                self.bleCentralManager.loadBLECentral(context: self.context)
+            } else if !self.toggle_beacon && BLECentral.loaded{
+                self.bleCentralManager.stopBLECentral()
+            } else if self.toggle_listening && !BLEPeripheral.loaded{
+                self.blePeripheralManager.loadBLEPeripheral(context: self.context)
+            } else if !self.toggle_listening && BLEPeripheral.loaded{
+               self.blePeripheralManager.stopBLEPeripheral()
+            }
+        })
     }
 }
 

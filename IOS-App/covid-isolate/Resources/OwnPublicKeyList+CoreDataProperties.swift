@@ -11,7 +11,7 @@ import Foundation
 import CoreData
 
 
-extension OwnPublicKeyList : Identifiable {
+extension OwnPublicKeyList {
 
     @nonobjc public class func fetchRequest() -> NSFetchRequest<OwnPublicKeyList> {
         return NSFetchRequest<OwnPublicKeyList>(entityName: "OwnPublicKeyList")

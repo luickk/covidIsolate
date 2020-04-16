@@ -6,6 +6,7 @@
 //  Copyright © 2020 luick klippel. All rights reserved.
 //
 
+import SwiftUI
 import Foundation
 import UIKit
 import CoreBluetooth
@@ -17,9 +18,16 @@ class BLECentral : NSObject {
     public static let covidIsolateServiceUUID = CBUUID(string: "86223527-b64e-475d-b646-bc45127e1cbb")
     
     public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceba")
-
+    
+    public static var loaded = false
+    
+    public static var pCIdSize = 0
+        
     var centralManager: CBCentralManager!
     var delContext = NSManagedObjectContext()
+    
+    let personnalContactIdSize = 320
+    var receiveBuffer:Data = Data()
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
@@ -33,14 +41,17 @@ class BLECentral : NSObject {
     // MARK: - view lifecycle
     
     public func loadBLECentral(context: NSManagedObjectContext) {
+        Alert(title: Text("Info"), message:     Text("beacon loaded"), dismissButton: .default(Text("ok")))
+        BLECentral.loaded = true
         self.delContext = context
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
     }
     
     public func stopBLECentral() {
+        BLECentral.loaded = false
         centralManager.stopScan()
         os_log("Scanning stopped")
-
+        receiveBuffer.removeAll(keepingCapacity: false)
         data.removeAll(keepingCapacity: false)
     }
 
@@ -345,7 +356,13 @@ extension BLECentral: CBPeripheralDelegate {
             data = dataToSend
             writeData()
         } else {
-            
+            receiveBuffer.append(characteristicData)
+            if receiveBuffer.count == personnalContactIdSize {
+                let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
+                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+                receiveBuffer.removeAll()
+                print("added pCId to pCId List")
+            }
         }
     }
 

@@ -12,11 +12,6 @@ import Foundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
-    
-    
-    let bleCentralManager = BLECentral()
-    let blePeripheralManager = BLEPeripheral()
-
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
@@ -40,9 +35,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         }
 
-        // start ble comm
-        self.bleCentralManager.loadBLECentral(context: context)
-        self.blePeripheralManager.loadBLEPeripheral(context: context)
         
         // Override point for customization after application launch.
         return true
