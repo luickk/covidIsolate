@@ -165,14 +165,14 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         switch peripheral.state {
         case .poweredOn:
             // ... so start working with the peripheral
-            os_log("CBManager is powered on")
+            os_log("Peripheral CBManager is powered on")
             setupPeripheral()
         case .poweredOff:
-            os_log("CBManager is not powered on")
+            os_log("Peripheral CBManager is not powered on")
             // In a real app, you'd deal with all the states accordingly
             return
         case .resetting:
-            os_log("CBManager is resetting")
+            os_log("Peripheral CBManager is resetting")
             // In a real app, you'd deal with all the states accordingly
             return
         case .unauthorized:

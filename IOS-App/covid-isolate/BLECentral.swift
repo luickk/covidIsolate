@@ -145,14 +145,14 @@ extension BLECentral: CBCentralManagerDelegate {
         switch central.state {
         case .poweredOn:
             // ... so start working with the peripheral
-            os_log("CBManager is powered on")
+            os_log("Central CBManager is powered on")
             retrievePeripheral()
         case .poweredOff:
-            os_log("CBManager is not powered on")
+            os_log("Central CBManager is not powered on")
             // In a real app, you'd deal with all the states accordingly
             return
         case .resetting:
-            os_log("CBManager is resetting")
+            os_log("Central CBManager is resetting")
             // In a real app, you'd deal with all the states accordingly
             return
         case .unauthorized:

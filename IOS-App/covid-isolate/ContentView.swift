@@ -14,8 +14,7 @@ import CoreBluetooth
 struct ContentView: View {
     
     // ui declarations
-    @State private var toggle_beacon : Bool = true
-    @State private var toggle_listening : Bool = true
+    @State private var toggle_ct : Bool = true
     @Environment(\.managedObjectContext) var context
     
     let bleCentralManager = BLECentral()
@@ -56,25 +55,18 @@ struct ContentView: View {
                     .font(.caption)
                     .fontWeight(.thin)
                 
-                Toggle(isOn: $toggle_beacon) {
-                    Text("Beacon")
+                Toggle(isOn: $toggle_ct) {
+                    Text("Contact Tracing")
                 }.onTapGesture {
-                    if self.toggle_beacon && !BLECentral.loaded {
+                    if !self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
                         self.bleCentralManager.loadBLECentral(context: self.context)
-                    } else if !self.toggle_beacon && BLECentral.loaded{
+                        self.blePeripheralManager.loadBLEPeripheral(context: self.context)
+                    } else if self.toggle_ct && BLECentral.loaded && BLEPeripheral.loaded{
                         self.bleCentralManager.stopBLECentral()
+                        self.blePeripheralManager.stopBLEPeripheral()
                     }
                 }
                 .padding()
-                Toggle(isOn: $toggle_listening) {
-                    Text("Listening")
-                }.onTapGesture {
-                    if self.toggle_listening && !BLEPeripheral.loaded{
-                        self.blePeripheralManager.loadBLEPeripheral(context: self.context)
-                    } else if !self.toggle_listening && BLEPeripheral.loaded{
-                       self.blePeripheralManager.stopBLEPeripheral()
-                    }
-                }
                 .padding()
                 Button(action: {}) {
                     Text("Check infection status")
@@ -141,11 +133,6 @@ struct ContentView: View {
                             
                             return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public")!))), dismissButton: .default(Text("ok")))
                          }
-                        
-                        Button(action: {}) {
-                            Text("Show Personnal Contact ID's")
-                        }
-                        .padding([.leading, .bottom, .trailing])
                     }
                     Divider()
                     
@@ -171,14 +158,12 @@ struct ContentView: View {
             
         }.onAppear(perform: {
             // start ble comm
-            if self.toggle_beacon && !BLECentral.loaded {
+            if self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
                 self.bleCentralManager.loadBLECentral(context: self.context)
-            } else if !self.toggle_beacon && BLECentral.loaded{
-                self.bleCentralManager.stopBLECentral()
-            } else if self.toggle_listening && !BLEPeripheral.loaded{
                 self.blePeripheralManager.loadBLEPeripheral(context: self.context)
-            } else if !self.toggle_listening && BLEPeripheral.loaded{
-               self.blePeripheralManager.stopBLEPeripheral()
+            } else if !self.toggle_ct && BLECentral.loaded && !BLEPeripheral.loaded {
+                self.blePeripheralManager.stopBLEPeripheral()
+                self.bleCentralManager.stopBLECentral()
             }
         })
     }
