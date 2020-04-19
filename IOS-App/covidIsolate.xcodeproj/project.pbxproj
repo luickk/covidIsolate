@@ -17,6 +17,7 @@
 		E59DFBEE2443333F00045C31 /* BLECentral.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBED2443333F00045C31 /* BLECentral.swift */; };
 		E59DFBF124472CB800045C31 /* OwnPublicKeyList+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBEF24472CB700045C31 /* OwnPublicKeyList+CoreDataClass.swift */; };
 		E59DFBF224472CB800045C31 /* OwnPublicKeyList+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBF024472CB800045C31 /* OwnPublicKeyList+CoreDataProperties.swift */; };
+		E59DFBF4244C5EF200045C31 /* pCIdValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E59DFBF3244C5EF200045C31 /* pCIdValidator.swift */; };
 		E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172442438B08300D53C84 /* AppDelegate.swift */; };
 		E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172462438B08300D53C84 /* SceneDelegate.swift */; };
 		E5A172492438B08300D53C84 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A172482438B08300D53C84 /* ContentView.swift */; };
@@ -39,6 +40,7 @@
 		E59DFBED2443333F00045C31 /* BLECentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECentral.swift; sourceTree = "<group>"; };
 		E59DFBEF24472CB700045C31 /* OwnPublicKeyList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OwnPublicKeyList+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E59DFBF024472CB800045C31 /* OwnPublicKeyList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OwnPublicKeyList+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		E59DFBF3244C5EF200045C31 /* pCIdValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = pCIdValidator.swift; sourceTree = "<group>"; };
 		E5A172412438B08300D53C84 /* covidIsolate.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = covidIsolate.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E5A172442438B08300D53C84 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		E5A172462438B08300D53C84 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -85,6 +87,7 @@
 				E5A1725E243931D900D53C84 /* Data */,
 				E5A17258243924B900D53C84 /* Resources */,
 				E5A172442438B08300D53C84 /* AppDelegate.swift */,
+				E59DFBF3244C5EF200045C31 /* pCIdValidator.swift */,
 				E550E0CA243DE634009A8AF7 /* covidIsolateUtils.swift */,
 				E550E0BD243B765D009A8AF7 /* RSACrypto.swift */,
 				E5A172462438B08300D53C84 /* SceneDelegate.swift */,
@@ -205,6 +208,7 @@
 				E514B574243B3D8300571678 /* ContactList+CoreDataClass.swift in Sources */,
 				E5A172452438B08300D53C84 /* AppDelegate.swift in Sources */,
 				E514B575243B3D8300571678 /* ContactList+CoreDataProperties.swift in Sources */,
+				E59DFBF4244C5EF200045C31 /* pCIdValidator.swift in Sources */,
 				E5A172472438B08300D53C84 /* SceneDelegate.swift in Sources */,
 				E550E0BE243B765D009A8AF7 /* RSACrypto.swift in Sources */,
 				E59DFBEC244330B400045C31 /* BLEPeripheral.swift in Sources */,

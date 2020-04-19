@@ -45,6 +45,7 @@ class BLECentral : NSObject {
         BLECentral.loaded = true
         self.delContext = context
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
+        
     }
     
     public func stopBLECentral() {
@@ -152,7 +153,7 @@ extension BLECentral: CBCentralManagerDelegate {
             // In a real app, you'd deal with all the states accordingly
             return
         case .resetting:
-            os_log("Central CBManager is resetting")
+            os_log("CBManager is resetting")
             // In a real app, you'd deal with all the states accordingly
             return
         case .unauthorized:

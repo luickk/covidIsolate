@@ -39,6 +39,7 @@ class BLEPeripheral : NSObject {
         BLEPeripheral.loaded = true
         self.delContext = context
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [BLEPeripheral.covidIsolateServiceUUID]])
     }
     
     func stopBLEPeripheral() {
@@ -257,10 +258,8 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             }
             receiveBuffer.append(requestValue)
             if receiveBuffer.count == personnalContactIdSize {
-                let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
-                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+                
                 receiveBuffer.removeAll()
-                print("added pCId to pCId List")
             }
             os_log("Received write request of %d bytes: %s", requestValue.count, stringFromData)
             
