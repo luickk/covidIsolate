@@ -39,7 +39,6 @@ class BLEPeripheral : NSObject {
         BLEPeripheral.loaded = true
         self.delContext = context
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
-        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [BLEPeripheral.covidIsolateServiceUUID]])
     }
     
     func stopBLEPeripheral() {
@@ -51,17 +50,21 @@ class BLEPeripheral : NSObject {
         dataToSend.removeAll(keepingCapacity: false)
         sendDataIndex = 0
     }
-    
-    // peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [TransferService.serviceUUID]])
-    // peripheralManager.stopAdvertising()
 
+    public func startAdvertising() {
+        peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [BLEPeripheral.covidIsolateServiceUUID]])
+    }
+    public func stopAdvertising() {
+        peripheralManager.stopAdvertising()
+    }
+    
     /*
      *  Sends the next amount of data to the connected central
      */
-    static var sendingEOM = true
+    static var sendingEOM = false
     
     func sendData() {
-        
+        print("SENDING DATA")
         guard let transferCharacteristic = transferCharacteristic else {
             return
         }
@@ -168,6 +171,7 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             // ... so start working with the peripheral
             os_log("Peripheral CBManager is powered on")
             setupPeripheral()
+            peripheralManager.startAdvertising([CBAdvertisementDataServiceUUIDsKey: [BLEPeripheral.covidIsolateServiceUUID]])
         case .poweredOff:
             os_log("Peripheral CBManager is not powered on")
             // In a real app, you'd deal with all the states accordingly
@@ -213,12 +217,13 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         os_log("Central subscribed to characteristic")
         
 
-        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
-        
-        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
-        
+//        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
+//
+//        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+//
         // Get the data
-        dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
+        //dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
+        dataToSend = "test-pcid-fromperipheral".data(using: .utf8)!
         
         // Reset the index
         sendDataIndex = 0
@@ -261,7 +266,7 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
                 
                 receiveBuffer.removeAll()
             }
-            os_log("Received write request of %d bytes: %s", requestValue.count, stringFromData)
+            os_log("Peripheral received write request of %d bytes: %s", requestValue.count, stringFromData)
             
         }
     }

@@ -36,8 +36,13 @@ public class cIUtils : NSData {
         do {
             let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
             fetchRequest.fetchLimit = 1
-            let objects = try context.fetch(fetchRequest) as! [User]
-            user = objects[0]
+            let objects = try context.fetch(fetchRequest) as! [covidIsolate.User]
+            user.id = objects[0].id!
+            user.keyPairChainTagName = objects[0].keyPairChainTagName!
+            user.infectiousIdentifier = objects[0].infectiousIdentifier
+            user.registrationDate = objects[0].registrationDate
+            user.dailySync = objects[0].dailySync
+            
         } catch {
         }
         return user

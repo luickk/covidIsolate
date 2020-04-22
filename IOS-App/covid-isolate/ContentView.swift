@@ -59,11 +59,11 @@ struct ContentView: View {
                     Text("Contact Tracing")
                 }.onTapGesture {
                     if !self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
-                        self.bleCentralManager.loadBLECentral(context: self.context)
-                        self.blePeripheralManager.loadBLEPeripheral(context: self.context)
+                        self.bleCentralManager.startScannig()
+                        self.blePeripheralManager.startAdvertising()
                     } else if self.toggle_ct && BLECentral.loaded && BLEPeripheral.loaded{
-                        self.bleCentralManager.stopBLECentral()
-                        self.blePeripheralManager.stopBLEPeripheral()
+                        self.bleCentralManager.stopScanning()
+                        self.blePeripheralManager.stopAdvertising()
                     }
                 }
                 .padding()

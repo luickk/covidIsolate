@@ -17,7 +17,7 @@ class BLECentral : NSObject {
 
     public static let covidIsolateServiceUUID = CBUUID(string: "86223527-b64e-475d-b646-bc45127e1cbb")
     
-    public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceba")
+    public static let characteristicUUID = CBUUID(string: "87aa09fa-7345-406b-8f92-f12f6ba3eceb")
     
     public static var loaded = false
     
@@ -31,7 +31,6 @@ class BLECentral : NSObject {
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
-    var writeIterationsComplete = 0
     var connectionIterationsComplete = 0
     
     let defaultIterations = 5     // change this value based on test usecase
@@ -55,7 +54,14 @@ class BLECentral : NSObject {
         receiveBuffer.removeAll(keepingCapacity: false)
         data.removeAll(keepingCapacity: false)
     }
-
+    
+    public func startScannig() {
+        retrievePeripheral()
+    }
+    
+    public func stopScanning() {
+        centralManager.stopScan()
+    }
     // MARK: - Helper Methods
 
     /*
@@ -101,41 +107,6 @@ class BLECentral : NSObject {
         // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
         centralManager.cancelPeripheralConnection(discoveredPeripheral)
     }
-    
-    /*
-     *  Write some test data to peripheral
-     */
-    private func writeData() {
-    
-        guard let discoveredPeripheral = discoveredPeripheral,
-                let transferCharacteristic = transferCharacteristic
-            else { return }
-        
-        // check to see if number of iterations completed and peripheral can accept more data
-        while writeIterationsComplete < defaultIterations && discoveredPeripheral.canSendWriteWithoutResponse {
-                    
-            let mtu = discoveredPeripheral.maximumWriteValueLength (for: .withoutResponse)
-            var rawPacket = [UInt8]()
-            
-            let bytesToCopy: size_t = min(mtu, data.count)
-            data.copyBytes(to: &rawPacket, count: bytesToCopy)
-            let packetData = Data(bytes: &rawPacket, count: bytesToCopy)
-            
-            let stringFromData = String(data: packetData, encoding: .utf8)
-            os_log("Writing %d bytes: %s", bytesToCopy, String(describing: stringFromData))
-            
-            discoveredPeripheral.writeValue(packetData, for: transferCharacteristic, type: .withoutResponse)
-            
-            writeIterationsComplete += 1
-            
-        }
-        
-        if writeIterationsComplete == defaultIterations {
-            // Cancel our subscription to the characteristic
-            discoveredPeripheral.setNotifyValue(false, for: transferCharacteristic)
-        }
-    }
-    
 }
 
 extension BLECentral: CBCentralManagerDelegate {
@@ -193,7 +164,7 @@ extension BLECentral: CBCentralManagerDelegate {
      */
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        
+        Alert(title: Text("Discovered device "), message:     Text("-"), dismissButton: .default(Text("ok")))
         // Reject if the signal strength is too low to attempt data transfer.
         // Change the minimum RSSI value depending on your app’s use case.
         guard RSSI.intValue >= -50
@@ -220,6 +191,7 @@ extension BLECentral: CBCentralManagerDelegate {
      *  If the connection fails for whatever reason, we need to deal with it.
      */
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
+        Alert(title: Text("failed to connect "), message:     Text("-"), dismissButton: .default(Text("ok")))
         os_log("Failed to connect to %@. %s", peripheral, String(describing: error))
         cleanup()
     }
@@ -228,6 +200,7 @@ extension BLECentral: CBCentralManagerDelegate {
      *  We've connected to the peripheral, now we need to discover the services and characteristics to find the 'transfer' characteristic.
      */
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
+        Alert(title: Text("Peripheral discovered connected"), message:     Text("-"), dismissButton: .default(Text("ok")))
         os_log("Peripheral Connected")
         
         // Stop scanning
@@ -236,7 +209,6 @@ extension BLECentral: CBCentralManagerDelegate {
         
         // set iteration info
         connectionIterationsComplete += 1
-        writeIterationsComplete = 0
         
         // Clear the data that we may already have
         data.removeAll(keepingCapacity: false)
@@ -325,6 +297,7 @@ extension BLECentral: CBPeripheralDelegate {
      *   This callback lets us know more data has arrived via notification on the characteristic
      */
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
+        print("RECEIVING DATA")
         // Deal with errors (if any)
         if let error = error {
             os_log("Error discovering characteristics: %s", error.localizedDescription)
@@ -335,7 +308,7 @@ extension BLECentral: CBPeripheralDelegate {
         guard let characteristicData = characteristic.value,
             let stringFromData = String(data: characteristicData, encoding: .utf8) else { return }
         
-        os_log("Received %d bytes: %s", characteristicData.count, stringFromData)
+        os_log("Central Received %d bytes: %s", characteristicData.count, stringFromData)
         
         // Have we received the end-of-message token?
         if stringFromData == "EOM" {
@@ -345,17 +318,6 @@ extension BLECentral: CBPeripheralDelegate {
             DispatchQueue.main.async() {
                 print(String(data: self.data, encoding: .utf8))
             }
-            
-            // received public contact ID from peripheral, sending own pCId
-            let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
-            
-            let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
-            
-            // Get the data
-            let dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
-            // setting pCId to transfer data
-            data = dataToSend
-            writeData()
         } else {
             receiveBuffer.append(characteristicData)
             if receiveBuffer.count == personnalContactIdSize {
@@ -396,8 +358,6 @@ extension BLECentral: CBPeripheralDelegate {
      */
     func peripheralIsReady(toSendWriteWithoutResponse peripheral: CBPeripheral) {
         os_log("Peripheral is ready, send data")
-        // not sending data, waiting for public contact id from peripheral
-        // writeData()
     }
     
 }
