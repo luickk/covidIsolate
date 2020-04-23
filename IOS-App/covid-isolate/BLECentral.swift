@@ -164,7 +164,6 @@ extension BLECentral: CBCentralManagerDelegate {
      */
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral,
                         advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        Alert(title: Text("Discovered device "), message:     Text("-"), dismissButton: .default(Text("ok")))
         // Reject if the signal strength is too low to attempt data transfer.
         // Change the minimum RSSI value depending on your app’s use case.
         guard RSSI.intValue >= -50
@@ -175,23 +174,21 @@ extension BLECentral: CBCentralManagerDelegate {
         
         os_log("Discovered %s at %d", String(describing: peripheral.name), RSSI.intValue)
         
-        // Device is in range - have we already seen it?
-        if discoveredPeripheral != peripheral {
-            
+//        // Device is in range - have we already seen it?
+//        if discoveredPeripheral != peripheral {
             // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it.
             discoveredPeripheral = peripheral
             
             // And finally, connect to the peripheral.
             os_log("Connecting to perhiperal %@", peripheral)
             centralManager.connect(peripheral, options: nil)
-        }
+//        }
     }
 
     /*
      *  If the connection fails for whatever reason, we need to deal with it.
      */
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
-        Alert(title: Text("failed to connect "), message:     Text("-"), dismissButton: .default(Text("ok")))
         os_log("Failed to connect to %@. %s", peripheral, String(describing: error))
         cleanup()
     }
@@ -200,12 +197,11 @@ extension BLECentral: CBCentralManagerDelegate {
      *  We've connected to the peripheral, now we need to discover the services and characteristics to find the 'transfer' characteristic.
      */
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        Alert(title: Text("Peripheral discovered connected"), message:     Text("-"), dismissButton: .default(Text("ok")))
         os_log("Peripheral Connected")
         
         // Stop scanning
-        centralManager.stopScan()
-        os_log("Scanning stopped")
+//        centralManager.stopScan()
+//        os_log("Scanning stopped")
         
         // set iteration info
         connectionIterationsComplete += 1
@@ -300,32 +296,18 @@ extension BLECentral: CBPeripheralDelegate {
         print("RECEIVING DATA")
         // Deal with errors (if any)
         if let error = error {
-            os_log("Error discovering characteristics: %s", error.localizedDescription)
+            print("Error discovering characteristics: %s", error.localizedDescription)
             cleanup()
             return
         }
         
-        guard let characteristicData = characteristic.value,
-            let stringFromData = String(data: characteristicData, encoding: .utf8) else { return }
-        
-        os_log("Central Received %d bytes: %s", characteristicData.count, stringFromData)
-        
-        // Have we received the end-of-message token?
-        if stringFromData == "EOM" {
-            // End-of-message case: show the data.
-            // Dispatch the text view update to the main queue for updating the UI, because
-            // we don't know which thread this method will be called back on.
-            DispatchQueue.main.async() {
-                print(String(data: self.data, encoding: .utf8))
-            }
-        } else {
-            receiveBuffer.append(characteristicData)
-            if receiveBuffer.count == personnalContactIdSize {
-                let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
-                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-                receiveBuffer.removeAll()
-                print("added pCId to pCId List")
-            }
+        receiveBuffer.append(characteristic.value!)
+        print(receiveBuffer.count)
+        if receiveBuffer.count == personnalContactIdSize {
+            let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
+            pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+            receiveBuffer.removeAll()
+            print("added pCId to pCId List")
         }
     }
 

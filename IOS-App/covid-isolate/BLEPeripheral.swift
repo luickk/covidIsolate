@@ -99,7 +99,7 @@ class BLEPeripheral : NSObject {
             if let mtu = connectedCentral?.maximumUpdateValueLength {
                 amountToSend = min(amountToSend, mtu)
             }
-            
+
             // Copy out the data we want
             let chunk = dataToSend.subdata(in: sendDataIndex..<(sendDataIndex + amountToSend))
             
@@ -217,13 +217,13 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         os_log("Central subscribed to characteristic")
         
 
-//        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
-//
-//        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
-//
+        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
+
+        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+
         // Get the data
-        //dataToSend = NSData(bytes: personnalContactId, length: personnalContactId.count) as! Data
-        dataToSend = "test-pcid-fromperipheral".data(using: .utf8)!
+        dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
+        // dataToSend = "test-pcid-fromperipheral".data(using: .utf8)!
         
         // Reset the index
         sendDataIndex = 0

@@ -117,7 +117,6 @@ struct ContentView: View {
                          .alert(isPresented: self.$showGenTestPCId) {
                              let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
                             
-                            print(pCI.count)
                             return Alert(title: Text("Personnal Contact Id"), message: Text(String(bytes: pCI, encoding: .ascii)!), dismissButton: .default(Text("ok")))
                          }
                         
