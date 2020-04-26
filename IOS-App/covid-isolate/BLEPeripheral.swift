@@ -21,21 +21,18 @@ class BLEPeripheral : NSObject {
     
     public static var loaded = false
     
-    let personnalContactIdSize = 320
-    var receiveBuffer:Data = Data()
-    
     var peripheralManager: CBPeripheralManager!
     var delContext = NSManagedObjectContext()
 
     var transferCharacteristic: CBMutableCharacteristic?
-    var connectedCentral: CBCentral?
+    var connectedCentral: CBCentral? = nil
     var dataToSend = Data()
     var sendDataIndex: Int = 0
+    
     
     // MARK: - View Lifecycle
     
     func loadBLEPeripheral(context: NSManagedObjectContext) {
-        Alert(title: Text("Info"), message:     Text("listener loaded"), dismissButton: .default(Text("ok")))
         BLEPeripheral.loaded = true
         self.delContext = context
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
@@ -46,7 +43,6 @@ class BLEPeripheral : NSObject {
         peripheralManager.stopAdvertising()
         os_log("Adertising stopped")
 
-        receiveBuffer.removeAll(keepingCapacity: false)
         dataToSend.removeAll(keepingCapacity: false)
         sendDataIndex = 0
     }
@@ -210,13 +206,7 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         }
     }
 
-    /*
-     *  Catch when someone subscribes to our characteristic, then start sending them data
-     */
-    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
-        os_log("Central subscribed to characteristic")
-        
-
+    private func sendPCId(peripheral: CBPeripheralManager, central: CBCentral) {
         let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
 
         let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
@@ -228,11 +218,20 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         // Reset the index
         sendDataIndex = 0
         
-        // save central
-        connectedCentral = central
-        
         // Start sending
         sendData()
+    }
+        
+    /*
+     *  Catch when someone subscribes to our characteristic, then start sending them data
+     */
+    func peripheralManager(_ peripheral: CBPeripheralManager, central: CBCentral, didSubscribeTo characteristic: CBCharacteristic) {
+        os_log("Central subscribed to characteristic")
+        
+        // save central
+        connectedCentral = central
+
+//        sendPCId(peripheral: peripheral, central: central)
     }
     
     /*
@@ -256,18 +255,17 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
      * This callback comes in when the PeripheralManager received write to characteristics
      */
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
+        print("DAT")
         for aRequest in requests {
+            print("PERIPHERAL DATA ARRIVED")
             guard let requestValue = aRequest.value,
                 let stringFromData = String(data: requestValue, encoding: .utf8) else {
                     continue
             }
-            receiveBuffer.append(requestValue)
-            if receiveBuffer.count == personnalContactIdSize {
-                
-                receiveBuffer.removeAll()
-            }
             os_log("Peripheral received write request of %d bytes: %s", requestValue.count, stringFromData)
-            
+            if(stringFromData == "req") {
+                sendPCId(peripheral: peripheral, central: connectedCentral!)
+            }
         }
     }
 }

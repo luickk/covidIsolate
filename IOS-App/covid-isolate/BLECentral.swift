@@ -28,6 +28,7 @@ class BLECentral : NSObject {
     
     let personnalContactIdSize = 320
     var receiveBuffer:Data = Data()
+    var receivedPCIdsCount:Int = 0
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
@@ -36,11 +37,13 @@ class BLECentral : NSObject {
     let defaultIterations = 5     // change this value based on test usecase
     
     var data = Data()
+    
+    var deviceChache = [CBPeripheral:String]()
+    var knownDevices = [CBUUID]()
 
     // MARK: - view lifecycle
     
     public func loadBLECentral(context: NSManagedObjectContext) {
-        Alert(title: Text("Info"), message:     Text("beacon loaded"), dismissButton: .default(Text("ok")))
         BLECentral.loaded = true
         self.delContext = context
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
@@ -64,25 +67,32 @@ class BLECentral : NSObject {
     }
     // MARK: - Helper Methods
 
+    private func makePCIdReq(per:CBPeripheral) {
+        print("MAKING PCId Req")
+        if per.canSendWriteWithoutResponse && transferCharacteristic != nil{
+            per.writeValue("req".data(using: .utf8)!, for: transferCharacteristic!, type: .withoutResponse)
+        }
+    }
+    
     /*
      * We will first check if we are already connected to our counterpart
      * Otherwise, scan for peripherals - specifically for our service's 128bit CBUUID
      */
     public func retrievePeripheral() {
         
-        let connectedPeripherals: [CBPeripheral] = (centralManager.retrieveConnectedPeripherals(withServices: [BLECentral.covidIsolateServiceUUID]))
+//        let connectedPeripherals: [CBPeripheral] = (centralManager.retrieveConnectedPeripherals(withServices: [BLECentral.covidIsolateServiceUUID]))
         
-        os_log("Found connected Peripherals with transfer service: %@", connectedPeripherals)
+//        os_log("Found connected Peripherals with transfer service: %@", connectedPeripherals)
         
-        if let connectedPeripheral = connectedPeripherals.last {
-            os_log("Connecting to peripheral %@", connectedPeripheral)
-            self.discoveredPeripheral = connectedPeripheral
-            centralManager.connect(connectedPeripheral, options: nil)
-        } else {
+//        if let connectedPeripheral = connectedPeripherals.last {
+//            os_log("Connecting to peripheral %@", connectedPeripheral)
+//            self.discoveredPeripheral = connectedPeripheral
+//            centralManager.connect(connectedPeripheral, options: nil)
+//        } else {
             // We were not connected to our counterpart, so start scanning
-            centralManager.scanForPeripherals(withServices: [BLECentral.covidIsolateServiceUUID],
+        centralManager.scanForPeripherals(withServices: [BLECentral.covidIsolateServiceUUID],
                                                options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
-        }
+//        }
     }
     
     /*
@@ -105,7 +115,7 @@ class BLECentral : NSObject {
         }
         
         // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
-        centralManager.cancelPeripheralConnection(discoveredPeripheral)
+//        centralManager.cancelPeripheralConnection(discoveredPeripheral)
     }
 }
 
@@ -166,7 +176,7 @@ extension BLECentral: CBCentralManagerDelegate {
                         advertisementData: [String: Any], rssi RSSI: NSNumber) {
         // Reject if the signal strength is too low to attempt data transfer.
         // Change the minimum RSSI value depending on your app’s use case.
-        guard RSSI.intValue >= -50
+        guard RSSI.intValue >= -100
             else {
                 os_log("Discovered perhiperal not in expected range, at %d", RSSI.intValue)
                 return
@@ -174,14 +184,35 @@ extension BLECentral: CBCentralManagerDelegate {
         
         os_log("Discovered %s at %d", String(describing: peripheral.name), RSSI.intValue)
         
-//        // Device is in range - have we already seen it?
-//        if discoveredPeripheral != peripheral {
-            // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it.
-            discoveredPeripheral = peripheral
-            
-            // And finally, connect to the peripheral.
-            os_log("Connecting to perhiperal %@", peripheral)
+        // Device is in range - have we already seen it?
+        
+        if deviceChache.keys.contains(peripheral) {
+            // check if 20 minutes passed
+            print("found peripheral from cache")
+            print(Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!))
+            print(receivedPCIdsCount)
+            if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < -60{
+                os_log("Reconnecting to perhiperal %@", peripheral)
+//                    centralManager.cancelPeripheralConnection(peripheral)
+//                    centralManager.connect(peripheral, options: nil)
+                centralManager.retrieveConnectedPeripherals(withServices: knownDevices)
+                deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
+                makePCIdReq(per: peripheral)
+            }
+        } else {
+            os_log("Connecting to perhiperal(without timer) %@", peripheral)
             centralManager.connect(peripheral, options: nil)
+            deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
+            knownDevices.append(CBUUID.init(string: peripheral.identifier.uuidString))
+        }
+        
+//        if discoveredPeripheral != peripheral {
+//            // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it.
+//            discoveredPeripheral = peripheral
+//
+//            // And finally, connect to the peripheral.
+//            os_log("Connecting to perhiperal %@", peripheral)
+//            centralManager.connect(peripheral, options: nil)
 //        }
     }
 
@@ -300,15 +331,17 @@ extension BLECentral: CBPeripheralDelegate {
             cleanup()
             return
         }
-        
+        print("data count: "+String(characteristic.value!.count))
         receiveBuffer.append(characteristic.value!)
         print(receiveBuffer.count)
         if receiveBuffer.count == personnalContactIdSize {
             let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
             pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-            receiveBuffer.removeAll()
+            receivedPCIdsCount += 1
             print("added pCId to pCId List")
+            // centralManager.cancelPeripheralConnection(peripheral)
         }
+        receiveBuffer.removeAll()
     }
 
     /*

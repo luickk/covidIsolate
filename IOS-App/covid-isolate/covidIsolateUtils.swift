@@ -52,6 +52,11 @@ public class cIUtils : NSData {
         formatter.dateFormat = "HH:mm,d:MMM:y"
         return formatter.string(for: Date())!
     }
+    public static func TimeDateStampStringToDate(inputString:String) -> Date? {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm,d:MMM:y"
+        return formatter.date(from: inputString)
+    }
     
     public static func createPersonnalContactId(id: String, timeStamp: String, privateKey: SecKey) -> [UInt8] {
         let unsignedContactId = (timeStamp+"/"+id).data(using: .utf8)
