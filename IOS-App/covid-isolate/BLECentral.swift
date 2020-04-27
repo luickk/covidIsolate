@@ -28,7 +28,7 @@ class BLECentral : NSObject {
     
     let personnalContactIdSize = 320
     var receiveBuffer:Data = Data()
-    var receivedPCIdsCount:Int = 0
+    static var receivedPCIdsCount:Int = 0
 
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
@@ -69,8 +69,17 @@ class BLECentral : NSObject {
 
     private func makePCIdReq(per:CBPeripheral) {
         print("MAKING PCId Req")
-        if per.canSendWriteWithoutResponse && transferCharacteristic != nil{
-            per.writeValue("req".data(using: .utf8)!, for: transferCharacteristic!, type: .withoutResponse)
+
+        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
+
+        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+
+        // Get the data
+        let dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
+        
+        if transferCharacteristic != nil{
+            print("PCId Req sent")
+            per.writeValue(dataToSend, for: transferCharacteristic!, type: .withoutResponse)
         }
     }
     
@@ -190,7 +199,7 @@ extension BLECentral: CBCentralManagerDelegate {
             // check if 20 minutes passed
             print("found peripheral from cache")
             print(Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!))
-            print(receivedPCIdsCount)
+            print(BLECentral.receivedPCIdsCount)
             if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < -60{
                 os_log("Reconnecting to perhiperal %@", peripheral)
 //                    centralManager.cancelPeripheralConnection(peripheral)
@@ -245,6 +254,7 @@ extension BLECentral: CBCentralManagerDelegate {
         
         // Search only for services that match our UUID
         peripheral.discoverServices([BLECentral.covidIsolateServiceUUID])
+        print(peripheral)
     }
     
     /*
@@ -313,6 +323,7 @@ extension BLECentral: CBPeripheralDelegate {
         guard let serviceCharacteristics = service.characteristics else { return }
         for characteristic in serviceCharacteristics where characteristic.uuid == BLECentral.characteristicUUID {
             // If it is, subscribe to it
+            print("stored tchar")
             transferCharacteristic = characteristic
             peripheral.setNotifyValue(true, for: characteristic)
         }
@@ -337,7 +348,7 @@ extension BLECentral: CBPeripheralDelegate {
         if receiveBuffer.count == personnalContactIdSize {
             let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
             pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-            receivedPCIdsCount += 1
+            BLECentral.receivedPCIdsCount += 1
             print("added pCId to pCId List")
             // centralManager.cancelPeripheralConnection(peripheral)
         }

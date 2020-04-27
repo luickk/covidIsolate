@@ -29,6 +29,9 @@ class BLEPeripheral : NSObject {
     var dataToSend = Data()
     var sendDataIndex: Int = 0
     
+    let personnalContactIdSize = 320
+    var receiveBuffer:Data = Data()
+    
     
     // MARK: - View Lifecycle
     
@@ -42,6 +45,7 @@ class BLEPeripheral : NSObject {
         BLEPeripheral.loaded = false
         peripheralManager.stopAdvertising()
         os_log("Adertising stopped")
+        receiveBuffer.removeAll(keepingCapacity: false)
 
         dataToSend.removeAll(keepingCapacity: false)
         sendDataIndex = 0
@@ -258,14 +262,23 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         print("DAT")
         for aRequest in requests {
             print("PERIPHERAL DATA ARRIVED")
-            guard let requestValue = aRequest.value,
-                let stringFromData = String(data: requestValue, encoding: .utf8) else {
-                    continue
-            }
-            os_log("Peripheral received write request of %d bytes: %s", requestValue.count, stringFromData)
-            if(stringFromData == "req") {
+            
+            let requestValue = aRequest.value
+
+            print("data count: "+String(requestValue!.count))
+            
+            receiveBuffer.append(requestValue!)
+            
+            print(receiveBuffer.count)
+            if receiveBuffer.count == personnalContactIdSize {
+                let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
+                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+                BLECentral.receivedPCIdsCount += 1
+                print("added pCId to pCId List")
                 sendPCId(peripheral: peripheral, central: connectedCentral!)
+                // centralManager.cancelPeripheralConnection(peripheral)
             }
+            receiveBuffer.removeAll()
         }
     }
 }
