@@ -30,6 +30,8 @@ class BLECentral : NSObject {
     var receiveBuffer:Data = Data()
     static var receivedPCIdsCount:Int = 0
 
+    static var contactEventTime:TimeInterval = -60
+    
     var discoveredPeripheral: CBPeripheral?
     var transferCharacteristic: CBCharacteristic?
     var connectionIterationsComplete = 0
@@ -78,7 +80,6 @@ class BLECentral : NSObject {
         let dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
         
         if transferCharacteristic != nil{
-            print("PCId Req sent")
             per.writeValue(dataToSend, for: transferCharacteristic!, type: .withoutResponse)
         }
     }
@@ -197,11 +198,10 @@ extension BLECentral: CBCentralManagerDelegate {
         
         if deviceChache.keys.contains(peripheral) {
             // check if 20 minutes passed
-            print("found peripheral from cache")
             print(Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!))
             print(BLECentral.receivedPCIdsCount)
-            if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < -60{
-                os_log("Reconnecting to perhiperal %@", peripheral)
+            if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < BLECentral.contactEventTime{
+                print("Reconnecting to perhiperal %@", peripheral)
 //                    centralManager.cancelPeripheralConnection(peripheral)
 //                    centralManager.connect(peripheral, options: nil)
                 centralManager.retrieveConnectedPeripherals(withServices: knownDevices)
@@ -254,7 +254,6 @@ extension BLECentral: CBCentralManagerDelegate {
         
         // Search only for services that match our UUID
         peripheral.discoverServices([BLECentral.covidIsolateServiceUUID])
-        print(peripheral)
     }
     
     /*
@@ -323,7 +322,6 @@ extension BLECentral: CBPeripheralDelegate {
         guard let serviceCharacteristics = service.characteristics else { return }
         for characteristic in serviceCharacteristics where characteristic.uuid == BLECentral.characteristicUUID {
             // If it is, subscribe to it
-            print("stored tchar")
             transferCharacteristic = characteristic
             peripheral.setNotifyValue(true, for: characteristic)
         }
@@ -335,14 +333,12 @@ extension BLECentral: CBPeripheralDelegate {
      *   This callback lets us know more data has arrived via notification on the characteristic
      */
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
-        print("RECEIVING DATA")
         // Deal with errors (if any)
         if let error = error {
             print("Error discovering characteristics: %s", error.localizedDescription)
             cleanup()
             return
         }
-        print("data count: "+String(characteristic.value!.count))
         receiveBuffer.append(characteristic.value!)
         print(receiveBuffer.count)
         if receiveBuffer.count == personnalContactIdSize {
