@@ -16,9 +16,9 @@ struct ContentView: View {
     // ui declarations
     @State private var toggle_ct : Bool = true
     @Environment(\.managedObjectContext) var context
-    
-    let bleCentralManager = BLECentral()
-    let blePeripheralManager = BLEPeripheral()
+//
+//    let bleCentralManager = BLECentral()
+//    let blePeripheralManager = BLEPeripheral()
 
     @FetchRequest(
         entity: User.entity(),
@@ -57,15 +57,16 @@ struct ContentView: View {
                 
                 Toggle(isOn: $toggle_ct) {
                     Text("Contact Tracing")
-                }.onTapGesture {
-                    if !self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
-                        self.bleCentralManager.startScannig()
-                        self.blePeripheralManager.startAdvertising()
-                    } else if self.toggle_ct && BLECentral.loaded && BLEPeripheral.loaded{
-                        self.bleCentralManager.stopScanning()
-                        self.blePeripheralManager.stopAdvertising()
-                    }
                 }
+//                .onTapGesture {
+//                    if !self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
+//                        self.bleCentralManager.startScannig()
+//                        self.blePeripheralManager.startAdvertising()
+//                    } else if self.toggle_ct && BLECentral.loaded && BLEPeripheral.loaded{
+//                        self.bleCentralManager.stopScanning()
+//                        self.blePeripheralManager.stopAdvertising()
+//                    }
+//                }
                 .padding()
                 .padding()
                 Button(action: {}) {
@@ -155,16 +156,17 @@ struct ContentView: View {
             }
             .padding(.horizontal)
             
-        }.onAppear(perform: {
-            // start ble comm
-            if self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
-                self.bleCentralManager.loadBLECentral(context: self.context)
-                self.blePeripheralManager.loadBLEPeripheral(context: self.context)
-            } else if !self.toggle_ct && BLECentral.loaded && !BLEPeripheral.loaded {
-                self.blePeripheralManager.stopBLEPeripheral()
-                self.bleCentralManager.stopBLECentral()
-            }
-        })
+        }
+//        .onAppear(perform: {
+//            // start ble comm
+//            if self.toggle_ct && !BLECentral.loaded && !BLEPeripheral.loaded {
+//                self.bleCentralManager.loadBLECentral(context: self.context)
+//                self.blePeripheralManager.loadBLEPeripheral(context: self.context)
+//            } else if !self.toggle_ct && BLECentral.loaded && !BLEPeripheral.loaded {
+//                self.blePeripheralManager.stopBLEPeripheral()
+//                self.bleCentralManager.stopBLECentral()
+//            }
+//        })
     }
 }
 

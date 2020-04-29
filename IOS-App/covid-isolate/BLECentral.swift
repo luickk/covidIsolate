@@ -24,7 +24,15 @@ class BLECentral : NSObject {
     public static var pCIdSize = 0
         
     var centralManager: CBCentralManager!
-    var delContext = NSManagedObjectContext()
+    
+    var user:cIUtils.User?
+    var privateKey:SecKey?
+    
+    private var persistentContainer: NSPersistentContainer?
+
+    var viewContext: NSManagedObjectContext {
+       return persistentContainer!.viewContext
+    }
     
     let personnalContactIdSize = 320
     var receiveBuffer:Data = Data()
@@ -45,11 +53,27 @@ class BLECentral : NSObject {
 
     // MARK: - view lifecycle
     
-    public func loadBLECentral(context: NSManagedObjectContext) {
+    public func loadBLECentral(persistentContainer: NSPersistentContainer) {
+        self.persistentContainer = persistentContainer
+        user = loadUser()
         BLECentral.loaded = true
-        self.delContext = context
+        privateKey = RSACrypto.getRSAKeyFromKeychain(user!.keyPairChainTagName+"-private")!
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
         
+    }
+    
+    func loadUser() -> cIUtils.User{
+        var user:cIUtils.User
+        if UIApplication.shared.applicationState == .background {
+            let taskContext = self.persistentContainer!.newBackgroundContext()
+            taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            taskContext.undoManager = nil
+            user = cIUtils.fetchSingleUserFromCoreDb(context:taskContext)!
+            
+        } else {
+            user = cIUtils.fetchSingleUserFromCoreDb(context:self.persistentContainer!.viewContext)!
+        }
+        return user
     }
     
     public func stopBLECentral() {
@@ -71,10 +95,13 @@ class BLECentral : NSObject {
 
     private func makePCIdReq(per:CBPeripheral) {
         print("MAKING PCId Req")
-
-        let user = cIUtils.fetchSingleUserFromCoreDb(context:self.delContext)!
-
-        let personnalContactId = cIUtils.createPersonnalContactId(id: user.id, timeStamp: cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+        
+        let timeStamp:String = cIUtils.genStringTimeDateStamp()
+        
+        print(timeStamp)
+        print(privateKey)
+        print(user)
+        let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
 
         // Get the data
         let dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
@@ -342,7 +369,17 @@ extension BLECentral: CBPeripheralDelegate {
         receiveBuffer.append(characteristic.value!)
         print(receiveBuffer.count)
         if receiveBuffer.count == personnalContactIdSize {
-            let pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: delContext)
+            var pCIdListEntry:PersonnalContactIdList
+            if UIApplication.shared.applicationState == .background {
+                let taskContext = self.persistentContainer!.newBackgroundContext()
+                taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+                taskContext.undoManager = nil
+
+                pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: taskContext)
+            } else {
+                pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: self.persistentContainer!.viewContext)
+            }
+            
             pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
             BLECentral.receivedPCIdsCount += 1
             print("added pCId to pCId List")

@@ -12,11 +12,19 @@ import Foundation
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    let bleCentralManager = BLECentral()
+    let blePeripheralManager = BLEPeripheral()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         let hasLaunchedBefore = UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
         let context = (UIApplication.shared.delegate as!
             AppDelegate).persistentContainer.viewContext
+        
+
+        self.bleCentralManager.loadBLECentral(persistentContainer: persistentContainer)
+        self.blePeripheralManager.loadBLEPeripheral(persistentContainer: persistentContainer)
+        
         if !hasLaunchedBefore {
             
             let generatedUser = cIUtils.generateNewUser()
@@ -79,6 +87,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                  */
                 fatalError("Unresolved error \(error), \(error.userInfo)")
             }
+            
+
+            
+            container.viewContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
+            container.viewContext.undoManager = nil
+            container.viewContext.shouldDeleteInaccessibleFaults = true
+            
+            container.viewContext.automaticallyMergesChangesFromParent = true
+            
+            
         })
         return container
     }()
