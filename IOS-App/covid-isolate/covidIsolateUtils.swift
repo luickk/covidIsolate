@@ -31,8 +31,8 @@ public class cIUtils : NSData {
         var keyPairChainTagName: String
     }
     
-    public static func fetchSingleUserFromCoreDb(context: NSManagedObjectContext) -> User?{
-        var user:User = User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
+    public static func fetchSingleUserFromCoreDb(context: NSManagedObjectContext) -> cIUtils.User?{
+        var user:cIUtils.User = User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
         do {
             let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "User")
             fetchRequest.fetchLimit = 1

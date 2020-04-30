@@ -312,10 +312,12 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
                 }
                 
                 pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-                BLECentral.receivedPCIdsCount += 1
-                print("added pCId to pCId List")
-                sendPCId(peripheral: peripheral, central: connectedCentral!)
-                // centralManager.cancelPeripheralConnection(peripheral)
+                
+                    BLECentral.receivedPCIdsCount += 1
+                    BLECentral.pCIdExchangeCache[connectedCentral?.identifier.uuidString ?? ""] = cIUtils.genStringTimeDateStamp()
+                    print("added pCId to pCId List")
+                    sendPCId(peripheral: peripheral, central: connectedCentral!)
+                    // centralManager.cancelPeripheralConnection(peripheral)
             }
             receiveBuffer.removeAll()
         }
