@@ -21,9 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let context = (UIApplication.shared.delegate as!
             AppDelegate).persistentContainer.viewContext
         
-
-        self.bleCentralManager.loadBLECentral(persistentContainer: persistentContainer)
-        self.blePeripheralManager.loadBLEPeripheral(persistentContainer: persistentContainer)
         
         if !hasLaunchedBefore {
             
@@ -44,10 +41,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         }
 
         
+        let user = cIUtils.fetchSingleUserFromCoreDb(context:context)!
+        let privateKey = RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!
+        
+
+        self.bleCentralManager.loadBLECentral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
+        self.blePeripheralManager.loadBLEPeripheral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
+        
         // Override point for customization after application launch.
         return true
     }
-
+    
     // MARK: UISceneSession Lifecycle
 
     func application(_ application: UIApplication, configurationForConnecting connectingSceneSession: UISceneSession, options: UIScene.ConnectionOptions) -> UISceneConfiguration {

@@ -64,7 +64,7 @@ The concept requires the application to run 24/7 and to be close to the user, si
 BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data except for identifier values which do not provide enoough storag, which is required since this apps concept relies (such as all others) on a token (pCId 320bytes) exchange between devices.
 With that kept in mind, this app uses the GATT's central/ peripheral mode to discover each other and transfer data.
 
-Each app has a BLE peripheral and central background service running, the central is constantly scanning for new peripheral which privide a covidIsolate service running. Once found, they wait for a certain amount of time(contact event time) before they connect to the peripheral and subscribe to its service and the pCId exchange is happens. A double connect and exchange is prohibited by a temp caching of the last peripheral device uuids.
+Each app has a BLE peripheral and central background service running, the central is constantly scanning for new peripheral which privide a covidIsolate service running. Once found, they wait for a certain amount of time(contact event time) before they connect to the peripheral and subscribe to its service and the pCId exchange is happening. A double connect and exchange is prohibited by a temp caching of the last peripheral device uuids.
 
 ### Personnal contact ID generation
 
@@ -79,7 +79,7 @@ The pCId represents the hashed(sha256) result of the ID(generated random RFC 412
 
 #### IOS
   All gathered pCIds and own generated public Keys are stored in apples [CoreData DB](https://developer.apple.com/documentation/coredata)
-  
+
 #### Android
 // TODO
 

@@ -55,27 +55,12 @@ class BLECentral : NSObject {
 
     // MARK: - view lifecycle
     
-    public func loadBLECentral(persistentContainer: NSPersistentContainer) {
+    public func loadBLECentral(persistentContainer: NSPersistentContainer, user:cIUtils.User, privateKey:SecKey) {
         self.persistentContainer = persistentContainer
-        user = loadUser()
+        self.user = user
+        self.privateKey = privateKey
         BLECentral.loaded = true
-        privateKey = RSACrypto.getRSAKeyFromKeychain(user!.keyPairChainTagName+"-private")!
         centralManager = CBCentralManager(delegate: self, queue: nil, options: [CBCentralManagerOptionShowPowerAlertKey: true])
-        
-    }
-    
-    func loadUser() -> cIUtils.User{
-        var user:cIUtils.User
-        if UIApplication.shared.applicationState == .background {
-            let taskContext = self.persistentContainer!.newBackgroundContext()
-            taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-            taskContext.undoManager = nil
-            user = cIUtils.fetchSingleUserFromCoreDb(context:taskContext)!
-            
-        } else {
-            user = cIUtils.fetchSingleUserFromCoreDb(context:self.persistentContainer!.viewContext)!
-        }
-        return user
     }
     
     public func stopBLECentral() {
@@ -103,9 +88,6 @@ class BLECentral : NSObject {
                 
                 let timeStamp:String = cIUtils.genStringTimeDateStamp()
                 
-                print(timeStamp)
-                print(privateKey)
-                print(user)
                 let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
 
                 // Get the data
@@ -122,9 +104,6 @@ class BLECentral : NSObject {
             
             let timeStamp:String = cIUtils.genStringTimeDateStamp()
             
-            print(timeStamp)
-            print(privateKey)
-            print(user)
             let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
 
             // Get the data
@@ -141,20 +120,8 @@ class BLECentral : NSObject {
      * Otherwise, scan for peripherals - specifically for our service's 128bit CBUUID
      */
     public func retrievePeripheral() {
-        
-//        let connectedPeripherals: [CBPeripheral] = (centralManager.retrieveConnectedPeripherals(withServices: [BLECentral.covidIsolateServiceUUID]))
-        
-//        os_log("Found connected Peripherals with transfer service: %@", connectedPeripherals)
-        
-//        if let connectedPeripheral = connectedPeripherals.last {
-//            os_log("Connecting to peripheral %@", connectedPeripheral)
-//            self.discoveredPeripheral = connectedPeripheral
-//            centralManager.connect(connectedPeripheral, options: nil)
-//        } else {
-            // We were not connected to our counterpart, so start scanning
         centralManager.scanForPeripherals(withServices: [BLECentral.covidIsolateServiceUUID],
                                                options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
-//        }
     }
     
     /*
@@ -266,15 +233,6 @@ extension BLECentral: CBCentralManagerDelegate {
             deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
             knownDevices.append(CBUUID.init(string: peripheral.identifier.uuidString))
         }
-        
-//        if discoveredPeripheral != peripheral {
-//            // Save a local copy of the peripheral, so CoreBluetooth doesn't get rid of it.
-//            discoveredPeripheral = peripheral
-//
-//            // And finally, connect to the peripheral.
-//            os_log("Connecting to perhiperal %@", peripheral)
-//            centralManager.connect(peripheral, options: nil)
-//        }
     }
 
     /*
@@ -291,9 +249,6 @@ extension BLECentral: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         os_log("Peripheral Connected")
         
-        // Stop scanning
-//        centralManager.stopScan()
-//        os_log("Scanning stopped")
         
         // set iteration info
         connectionIterationsComplete += 1
@@ -405,14 +360,22 @@ extension BLECentral: CBPeripheralDelegate {
                 pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: self.persistentContainer!.viewContext)
             }
 
-            if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString]!)!) < BLECentral.contactEventTime {
+            if BLECentral.pCIdExchangeCache.keys.contains(peripheral.identifier.uuidString) {
+                if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString]!)!) < BLECentral.contactEventTime {
+                    pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
+                    BLECentral.receivedPCIdsCount += 1
+                    BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
+                    print("added pCId to pCId List")
+                    // centralManager.cancelPeripheralConnection(peripheral)
+                } else {
+                    print("keys already exchanged")
+                }
+            } else {
                 pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
                 BLECentral.receivedPCIdsCount += 1
                 BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
                 print("added pCId to pCId List")
                 // centralManager.cancelPeripheralConnection(peripheral)
-            } else {
-                print("keys already exchanged")
             }
         }
         receiveBuffer.removeAll()
