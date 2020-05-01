@@ -16,21 +16,10 @@ struct ContentView: View {
     // ui declarations
     @State private var toggle_ct : Bool = true
     @Environment(\.managedObjectContext) var context
-
-    @FetchRequest(
-        entity: User.entity(),
-        sortDescriptors: [
-            NSSortDescriptor(keyPath: \User.id, ascending: true)
-        ]
-    ) var users: FetchedResults<User>
     
+    @State private var user:cIUtils.User = cIUtils.User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
     
-    @FetchRequest(
-        entity: ContactList.entity(),
-        sortDescriptors: [
-            NSSortDescriptor(keyPath: \ContactList.contactId, ascending: true)
-        ]
-    ) var contactlist: FetchedResults<ContactList>
+    @State private var contactList:[ContactList] = [ContactList]()
 
     @State var showKeyPrivateAlert = false
     @State var showKeyPublicAlert = false
@@ -66,68 +55,74 @@ struct ContentView: View {
             .padding(.horizontal)
 
             VStack(alignment: .center) {
+            Divider()
+            
+            Text("Personnal Data").padding()
+        
+            VStack(alignment: .leading) {
+                Text("ID: ").fontWeight(.thin) + Text(user.id)
+                    .font(.caption)
+
+                Button(action: {
+                    self.showKeyPrivateAlert = true
+                 }) {
+                    Text("Show secret private key")
+                        .foregroundColor(Color.red)
+                    .padding([.leading, .top, .trailing])
+                }
+                .alert(isPresented: self.$showKeyPrivateAlert) {
+                    Alert(title: Text("Your Private Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private"))!), dismissButton: .default(Text("I'll keep it secret!")))
+                }
+                Button(action: {
+                   self.showKeyPublicAlert = true
+                }) {
+                   Text("Show secret public key")
+                       .foregroundColor(Color.red)
+                    .padding([ .leading, .trailing])
+               }
+                .alert(isPresented: self.$showKeyPublicAlert) {
+                    Alert(title: Text("Your Public Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!), dismissButton: .default(Text("I'll keep it secret!")))
+                }
+
+                Button(action: {
+                    self.showGenTestPCId = true
+                }) {
+                    Text("gen test PCId")
+                        .foregroundColor(Color.red)
+                        .padding([ .leading, .trailing])
+                }
+                 .alert(isPresented: self.$showGenTestPCId) {
+                     let pCI = cIUtils.createPersonnalContactId(id: user.id, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+                    
+                    return Alert(title: Text("Personnal Contact Id"), message: Text(String(bytes: pCI, encoding: .ascii)!), dismissButton: .default(Text("ok")))
+                 }
+                
+                Button(action: {
+                    self.showGenTestPCIdVerify = true
+                }) {
+                    Text("validate generated test PCId")
+                        .foregroundColor(Color.red)
+                        .padding([ .leading, .trailing])
+                }
+                 .alert(isPresented: self.$showGenTestPCIdVerify) {
+                    let pCI = cIUtils.createPersonnalContactId(id: user.id, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
+                    
+                    return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public")!))), dismissButton: .default(Text("ok")))
+                 }
+                
                 Divider()
                 
-                Text("Personnal Data").padding()
+                Text("Contacts").padding()
                 
-                ForEach(users) { user in
-                    VStack(alignment: .leading) {
-                        Text("ID: ").fontWeight(.thin) + Text(user.id!)
-                            .font(.caption)
-
-                        Button(action: {
-                            self.showKeyPrivateAlert = true
-                         }) {
-                            Text("Show secret private key")
-                                .foregroundColor(Color.red)
-                            .padding([.leading, .top, .trailing])
-                        }
-                        .alert(isPresented: self.$showKeyPrivateAlert) {
-                            Alert(title: Text("Your Private Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private"))!), dismissButton: .default(Text("I'll keep it secret!")))
-                        }
-                        Button(action: {
-                           self.showKeyPublicAlert = true
-                        }) {
-                           Text("Show secret public key")
-                               .foregroundColor(Color.red)
-                            .padding([ .leading, .trailing])
-                       }
-                        .alert(isPresented: self.$showKeyPublicAlert) {
-                            Alert(title: Text("Your Public Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public"))!), dismissButton: .default(Text("I'll keep it secret!")))
-                        }
-
-                        Button(action: {
-                            self.showGenTestPCId = true
-                        }) {
-                            Text("gen test PCId")
-                                .foregroundColor(Color.red)
-                                .padding([ .leading, .trailing])
-                        }
-                         .alert(isPresented: self.$showGenTestPCId) {
-                             let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
-                            
-                            return Alert(title: Text("Personnal Contact Id"), message: Text(String(bytes: pCI, encoding: .ascii)!), dismissButton: .default(Text("ok")))
-                         }
-                        
-                        Button(action: {
-                            self.showGenTestPCIdVerify = true
-                        }) {
-                            Text("validate generated test PCId")
-                                .foregroundColor(Color.red)
-                                .padding([ .leading, .trailing])
-                        }
-                         .alert(isPresented: self.$showGenTestPCIdVerify) {
-                            let pCI = cIUtils.createPersonnalContactId(id: user.id!, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-private")!)
-                            
-                            return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName!+"-public")!))), dismissButton: .default(Text("ok")))
-                         }
-                    }
-                    Divider()
-                    
-                    Text("Contacts").padding()
-                    
-                    ForEach(self.contactlist) { contact in
-                        ScrollView(.vertical, showsIndicators: false) {
+                Button(action: {
+                    self.contactList = cIUtils.fetchContactList(context: self.context)
+                }) {
+                    Text("refresh")
+                }
+                .padding()
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    ForEach(self.contactList) { contact in
                             VStack(alignment: .leading) {
                                 Text("CID: ").font(.caption).fontWeight(.thin) + Text(contact.contactId!)
                                     .font(.caption)
@@ -143,8 +138,10 @@ struct ContentView: View {
                 
             }
             .padding(.horizontal)
-            
-        }
+        }.onAppear(perform: {
+            self.user = cIUtils.fetchSingleUserFromCoreDb(context: self.context)!
+            self.contactList = cIUtils.fetchContactList(context: self.context)
+        })
     }
 }
 

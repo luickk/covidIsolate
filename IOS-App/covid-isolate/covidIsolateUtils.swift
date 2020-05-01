@@ -47,6 +47,18 @@ public class cIUtils : NSData {
         }
         return user
     }
+    
+    public static func fetchContactList(context: NSManagedObjectContext) -> [ContactList]{
+        var contacts:[ContactList] = [ContactList]()
+        do {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "ContactList")
+            contacts = try context.fetch(fetchRequest) as! [covidIsolate.ContactList]
+            
+        } catch {
+        }
+        return contacts
+    }
+    
     public static func genStringTimeDateStamp() -> String{
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm,d:MMM:y"
