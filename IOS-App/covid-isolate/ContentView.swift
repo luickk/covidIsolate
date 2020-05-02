@@ -9,8 +9,6 @@
 import SwiftUI
 import CoreBluetooth
 
-
-
 struct ContentView: View {
     
     // ui declarations
@@ -19,8 +17,8 @@ struct ContentView: View {
     
     @State private var user:cIUtils.User = cIUtils.User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
     
-    @State private var contactList:[ContactList] = [ContactList]()
-
+    @State private var contactList: [ContactList] = [ContactList]()
+    
     @State var showKeyPrivateAlert = false
     @State var showKeyPublicAlert = false
     @State var showGenTestPCId = false
@@ -112,33 +110,31 @@ struct ContentView: View {
                 
                 Divider()
                 
-                Text("Contacts").padding()
+//                Text("Contacts").padding()
                 
                 Button(action: {
-                    self.contactList = cIUtils.fetchContactList(context: self.context)
                 }) {
-                    Text("refresh")
-                }
-                .padding()
+                    Text("Contacts (click to refresh)")
+                }.padding()
+                    .foregroundColor(.black)
                 
-                ScrollView(.vertical, showsIndicators: false) {
-                    ForEach(self.contactList) { contact in
-                            VStack(alignment: .leading) {
-                                Text("CID: ").font(.caption).fontWeight(.thin) + Text(contact.contactId!)
-                                    .font(.caption)
-                                Text(contact.dateTime!)
-                                    .fontWeight(.thin)
-                                    .font(.caption)
-                                Divider()
-                            }
-                        }
+                Divider()
+                
+                List(self.contactList) { contact in
+                    VStack(alignment: .leading) {
+                        Text("CID: ").font(.caption).fontWeight(.thin) + Text(contact.contactId!.prefix(10) + "...")
+                            .font(.caption)
+                        Text(contact.dateTime!)
+                            .fontWeight(.thin)
+                            .font(.caption)
                     }
                 }
-                .padding(.horizontal)
-                
             }
             .padding(.horizontal)
-        }.onAppear(perform: {
+        }
+        .padding(.horizontal)
+        }
+        .onAppear(perform: {
             self.user = cIUtils.fetchSingleUserFromCoreDb(context: self.context)!
             self.contactList = cIUtils.fetchContactList(context: self.context)
         })

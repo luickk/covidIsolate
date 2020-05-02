@@ -79,41 +79,6 @@ class BLECentral : NSObject {
         centralManager.stopScan()
     }
     // MARK: - Helper Methods
-
-    private func makePCIdReq(per:CBPeripheral) {
-        if BLECentral.pCIdExchangeCache.keys.contains(per.identifier.uuidString) {
-            if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[per.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                
-                print("MAKING pCId Req")
-                
-                let timeStamp:String = cIUtils.genStringTimeDateStamp()
-                
-                let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
-
-                // Get the data
-                let dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
-                
-                if transferCharacteristic != nil{
-                    per.writeValue(dataToSend, for: transferCharacteristic!, type: .withoutResponse)
-                }
-            } else {
-                print("already exchanged keys, not making pCId req")
-            }
-        } else {
-            print("MAKING pCId Req")
-            
-            let timeStamp:String = cIUtils.genStringTimeDateStamp()
-            
-            let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
-
-            // Get the data
-            let dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
-            
-            if transferCharacteristic != nil{
-                per.writeValue(dataToSend, for: transferCharacteristic!, type: .withoutResponse)
-            }
-        }
-    }
     
     /*
      * We will first check if we are already connected to our counterpart
@@ -221,11 +186,9 @@ extension BLECentral: CBCentralManagerDelegate {
             print(BLECentral.receivedPCIdsCount)
             if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < BLECentral.contactEventTime {
                 print("Reconnecting to perhiperal %@", peripheral)
-//                    centralManager.cancelPeripheralConnection(peripheral)
-//                    centralManager.connect(peripheral, options: nil)
                 centralManager.retrieveConnectedPeripherals(withServices: knownDevices)
                 deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
-                makePCIdReq(per: peripheral)
+                cIKeyExchange.makePeripheralPCIdReqFromCentral(bleCentral: self, per: peripheral)
             }
         } else {
             os_log("Connecting to perhiperal(without timer) %@", peripheral)
@@ -349,33 +312,14 @@ extension BLECentral: CBPeripheralDelegate {
         receiveBuffer.append(characteristic.value!)
         print(receiveBuffer.count)
         if receiveBuffer.count == personnalContactIdSize {
-            var pCIdListEntry:PersonnalContactIdList
-            if UIApplication.shared.applicationState == .background {
-                let taskContext = self.persistentContainer!.newBackgroundContext()
-                taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-                taskContext.undoManager = nil
-
-                pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: taskContext)
-            } else {
-                pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: self.persistentContainer!.viewContext)
-            }
-
             if BLECentral.pCIdExchangeCache.keys.contains(peripheral.identifier.uuidString) {
                 if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                    pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-                    BLECentral.receivedPCIdsCount += 1
-                    BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
-                    print("added pCId to pCId List")
-                    // centralManager.cancelPeripheralConnection(peripheral)
+                    cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
                 } else {
                     print("keys already exchanged")
                 }
             } else {
-                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-                BLECentral.receivedPCIdsCount += 1
-                BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
-                print("added pCId to pCId List")
-                // centralManager.cancelPeripheralConnection(peripheral)
+                cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
             }
         }
         receiveBuffer.removeAll()

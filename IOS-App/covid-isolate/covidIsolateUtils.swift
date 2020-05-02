@@ -11,8 +11,8 @@ import Security
 import CoreData
 import CommonCrypto
 import CryptoKit
+import CoreBluetooth
 
-// CryptoKit.Digest utils
 extension Digest {
     var bytes: [UInt8] { Array(makeIterator()) }
     var data: Data { Data(bytes) }
@@ -57,6 +57,13 @@ public class cIUtils : NSData {
         } catch {
         }
         return contacts
+    }
+    
+    public static func addContactToContactList(context: NSManagedObjectContext, contactId: String, dateTime: String, distance: Int32) {
+        let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
+        newContact.contactId = contactId
+        newContact.dateTime = dateTime
+        newContact.distance = distance
     }
     
     public static func genStringTimeDateStamp() -> String{

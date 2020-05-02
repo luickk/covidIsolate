@@ -219,28 +219,7 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             return
         }
     }
-
-    private func sendPCId(peripheral: CBPeripheralManager, central: CBCentral) {
-        
-        let timeStamp:String = cIUtils.genStringTimeDateStamp()
-        
-        print(timeStamp)
-        print(privateKey)
-        print(user)
-        
-        let personnalContactId = cIUtils.createPersonnalContactId(id: user!.id, timeStamp: timeStamp, privateKey: privateKey!)
-
-        // Get the data
-        dataToSend = Data(bytes: personnalContactId, count: personnalContactId.count)
-        // dataToSend = "test-pcid-fromperipheral".data(using: .utf8)!
-        
-        // Reset the index
-        sendDataIndex = 0
-        
-        // Start sending
-        sendData()
-    }
-        
+   
     /*
      *  Catch when someone subscribes to our characteristic, then start sending them data
      */
@@ -301,20 +280,12 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
 
                 if BLECentral.pCIdExchangeCache.keys.contains(connectedCentral!.identifier.uuidString) {
                     if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                        BLECentral.receivedPCIdsCount += 1
-                        BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
-                        print("added pCId to pCId List")
-                        sendPCId(peripheral: peripheral, central: connectedCentral!)
-                        // centralManager.cancelPeripheralConnection(peripheral)
+                        cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
                     } else {
                         print("keys already exchanged")
                     }
                 } else {
-                    BLECentral.receivedPCIdsCount += 1
-                    BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
-                    print("added pCId to pCId List")
-                    sendPCId(peripheral: peripheral, central: connectedCentral!)
-                    // centralManager.cancelPeripheralConnection(peripheral)
+                    cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
                 }
             }
             receiveBuffer.removeAll()

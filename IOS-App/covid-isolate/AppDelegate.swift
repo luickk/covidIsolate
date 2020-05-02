@@ -33,10 +33,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             newUser.registrationDate = generatedUser.registrationDate
             newUser.keyPairChainTagName = generatedUser.keyPairChainTagName
 
-            let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
-            newContact.distance = 0
-            newContact.contactId = "-------------test-cid----------"
-            newContact.dateTime = cIUtils.genStringTimeDateStamp()
+//            let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
+//            newContact.distance = 0
+//            newContact.contactId = "-------------test-cid----------"
+//            newContact.dateTime = cIUtils.genStringTimeDateStamp()
 
         }
 

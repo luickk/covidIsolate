@@ -27,6 +27,7 @@
 		E5A17265243934D900D53C84 /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = E5A17263243934D900D53C84 /* Model.xcdatamodeld */; };
 		E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */; };
 		E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5A1726B2439374500D53C84 /* User+CoreDataProperties.swift */; };
+		E5E591A3245D7FCA00C68AD9 /* cIKeyExchange.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5E591A2245D7FCA00C68AD9 /* cIKeyExchange.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -52,6 +53,7 @@
 		E5A17264243934D900D53C84 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 		E5A1726A2439374500D53C84 /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E5A1726B2439374500D53C84 /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		E5E591A2245D7FCA00C68AD9 /* cIKeyExchange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = cIKeyExchange.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -89,6 +91,7 @@
 				E5A172442438B08300D53C84 /* AppDelegate.swift */,
 				E59DFBF3244C5EF200045C31 /* pCIdValidator.swift */,
 				E550E0CA243DE634009A8AF7 /* covidIsolateUtils.swift */,
+				E5E591A2245D7FCA00C68AD9 /* cIKeyExchange.swift */,
 				E550E0BD243B765D009A8AF7 /* RSACrypto.swift */,
 				E5A172462438B08300D53C84 /* SceneDelegate.swift */,
 				E5A172482438B08300D53C84 /* ContentView.swift */,
@@ -213,6 +216,7 @@
 				E550E0BE243B765D009A8AF7 /* RSACrypto.swift in Sources */,
 				E59DFBEC244330B400045C31 /* BLEPeripheral.swift in Sources */,
 				E5A1726C2439374500D53C84 /* User+CoreDataClass.swift in Sources */,
+				E5E591A3245D7FCA00C68AD9 /* cIKeyExchange.swift in Sources */,
 				E59DFBF224472CB800045C31 /* OwnPublicKeyList+CoreDataProperties.swift in Sources */,
 				E550E0C8243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift in Sources */,
 				E5A1726D2439374500D53C84 /* User+CoreDataProperties.swift in Sources */,
