@@ -37,7 +37,14 @@ class BLEPeripheral : NSObject {
     var dataToSend = Data()
     var sendDataIndex: Int = 0
     
+    // pCId = 320
     let personnalContactIdSize = 320
+    // rssi (int32) = 4 bytes
+    let rssiSize = 4
+    
+    var rssiPCIdSize = 0
+    
+    
     var receiveBuffer:Data = Data()
     
     
@@ -47,6 +54,7 @@ class BLEPeripheral : NSObject {
         self.persistentContainer = persistentContainer
         self.user = user
         self.privateKey = privateKey
+        self.rssiPCIdSize = rssiSize + personnalContactIdSize
         BLEPeripheral.loaded = true
         peripheralManager = CBPeripheralManager(delegate: self, queue: nil, options: [CBPeripheralManagerOptionShowPowerAlertKey: true])
     }
@@ -228,7 +236,7 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
         
         // save central
         connectedCentral = central
-
+        
 //        sendPCId(peripheral: peripheral, central: central)
     }
     
@@ -253,7 +261,6 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
      * This callback comes in when the PeripheralManager received write to characteristics
      */
     func peripheralManager(_ peripheral: CBPeripheralManager, didReceiveWrite requests: [CBATTRequest]) {
-        print("DAT")
         for aRequest in requests {
             print("PERIPHERAL DATA ARRIVED")
             
@@ -263,29 +270,17 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             
             receiveBuffer.append(requestValue!)
             
-            print(receiveBuffer.count)
-            if receiveBuffer.count == personnalContactIdSize {
-                var pCIdListEntry:PersonnalContactIdList
-                if UIApplication.shared.applicationState == .background {
-                    let taskContext = self.persistentContainer!.newBackgroundContext()
-                    taskContext.mergePolicy = NSMergeByPropertyObjectTrumpMergePolicy
-                    taskContext.undoManager = nil
-
-                    pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: taskContext)
-                } else {
-                    pCIdListEntry = PersonnalContactIdList(entity: PersonnalContactIdList.entity(), insertInto: self.persistentContainer!.viewContext)
-                }
-                
-                pCIdListEntry.contactId = receiveBuffer.base64EncodedString()
-
+            if receiveBuffer.count == rssiPCIdSize {
+                let pCId = receiveBuffer.prefix(320)
+                let rssi = Int32(bigEndian: receiveBuffer.suffix(from: rssiSize).withUnsafeBytes({ $0.pointee }))
                 if BLECentral.pCIdExchangeCache.keys.contains(connectedCentral!.identifier.uuidString) {
                     if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                        cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
+                        cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId.base64EncodedString(), rssi: rssi)
                     } else {
                         print("keys already exchanged")
                     }
                 } else {
-                    cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
+                    cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId.base64EncodedString(), rssi: rssi)
                 }
             }
             receiveBuffer.removeAll()

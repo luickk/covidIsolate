@@ -9,11 +9,18 @@
 import SwiftUI
 import CoreBluetooth
 
+class MainClass: ObservableObject {
+   public var ToggleSwitchState = false
+    init(){}
+}
+
 struct ContentView: View {
     
     // ui declarations
     @State private var toggle_ct : Bool = true
     @Environment(\.managedObjectContext) var context
+    
+    @ObservedObject var oMainClass = MainClass()
     
     @State private var user:cIUtils.User = cIUtils.User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
     
@@ -24,25 +31,24 @@ struct ContentView: View {
     @State var showGenTestPCId = false
     @State var showGenTestPCIdVerify = false
     
+    let appDel = UIApplication.shared.delegate as! AppDelegate
+    
     var body: some View {
         Group {
             VStack(alignment: .center) {
                 
                 Text("Covid Isolation App")
                     .font(.title)
-                    
-                    
                 Text("App designed to identify contacts in the past")
                     .font(.caption)
                     .fontWeight(.thin)
                 Text("with infectious subjects ")
                     .font(.caption)
                     .fontWeight(.thin)
-                
                 Toggle(isOn: $toggle_ct) {
-                    Text("Contact Tracing")
+                    // Text("Contact Tracing")
+                    Text("Contact Tracing: \(ToggleAction(State: toggle_ct))")
                 }
-                .padding()
                 .padding()
                 Button(action: {}) {
                     Text("Check infection status")
@@ -69,7 +75,7 @@ struct ContentView: View {
                     .padding([.leading, .top, .trailing])
                 }
                 .alert(isPresented: self.$showKeyPrivateAlert) {
-                    Alert(title: Text("Your Private Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private"))!), dismissButton: .default(Text("I'll keep it secret!")))
+                    Alert(title: Text("Your Private Key: "), message:     Text(Data(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private"))!.utf8).base64EncodedString()), dismissButton: .default(Text("I'll keep it secret!")))
                 }
                 Button(action: {
                    self.showKeyPublicAlert = true
@@ -79,40 +85,14 @@ struct ContentView: View {
                     .padding([ .leading, .trailing])
                }
                 .alert(isPresented: self.$showKeyPublicAlert) {
-                    Alert(title: Text("Your Public Key: "), message:     Text(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!), dismissButton: .default(Text("I'll keep it secret!")))
+                    Alert(title: Text("Your Public Key: "), message:     Text(Data(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!.utf8).base64EncodedString()
+                    ), dismissButton: .default(Text("I'll keep it secret!")))
                 }
-
-                Button(action: {
-                    self.showGenTestPCId = true
-                }) {
-                    Text("gen test PCId")
-                        .foregroundColor(Color.red)
-                        .padding([ .leading, .trailing])
-                }
-                 .alert(isPresented: self.$showGenTestPCId) {
-                     let pCI = cIUtils.createPersonnalContactId(id: user.id, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
-                    
-                    return Alert(title: Text("Personnal Contact Id"), message: Text(String(bytes: pCI, encoding: .ascii)!), dismissButton: .default(Text("ok")))
-                 }
-                
-                Button(action: {
-                    self.showGenTestPCIdVerify = true
-                }) {
-                    Text("validate generated test PCId")
-                        .foregroundColor(Color.red)
-                        .padding([ .leading, .trailing])
-                }
-                 .alert(isPresented: self.$showGenTestPCIdVerify) {
-                    let pCI = cIUtils.createPersonnalContactId(id: user.id, timeStamp:cIUtils.genStringTimeDateStamp(), privateKey: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!)
-                    
-                    return Alert(title: Text("Personnal Contact Id verification"), message:     Text(String(cIUtils.verifyPersonnalContactId(personnalContactId: pCI, publicKey:  RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public")!))), dismissButton: .default(Text("ok")))
-                 }
                 
                 Divider()
                 
-//                Text("Contacts").padding()
-                
                 Button(action: {
+                    self.contactList = cIUtils.fetchContactList(context: self.context)
                 }) {
                     Text("Contacts (click to refresh)")
                 }.padding()
@@ -127,6 +107,9 @@ struct ContentView: View {
                         Text(contact.dateTime!)
                             .fontWeight(.thin)
                             .font(.caption)
+                        Text(String(contact.distance))
+                            .fontWeight(.thin)
+                            .font(.caption)
                     }
                 }
             }
@@ -138,6 +121,21 @@ struct ContentView: View {
             self.user = cIUtils.fetchSingleUserFromCoreDb(context: self.context)!
             self.contactList = cIUtils.fetchContactList(context: self.context)
         })
+    }
+    
+    func ToggleAction(State: Bool) -> String {
+        if (State != oMainClass.ToggleSwitchState)
+        {
+            oMainClass.ToggleSwitchState = State
+            if State {
+                self.appDel.bleCentralManager.startScannig()
+                self.appDel.blePeripheralManager.startAdvertising()
+            } else {
+                self.appDel.bleCentralManager.stopScanning()
+                self.appDel.blePeripheralManager.stopAdvertising()
+            }
+        }
+        return String(State)
     }
 }
 

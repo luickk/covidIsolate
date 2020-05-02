@@ -49,8 +49,8 @@ class BLECentral : NSObject {
     var data = Data()
     
     var deviceChache = [CBPeripheral:String]()
-    
     static var pCIdExchangeCache = [String:String]()
+    var deviceRSSICache = [CBPeripheral:Int32]()
     var knownDevices = [CBUUID]()
 
     // MARK: - view lifecycle
@@ -177,6 +177,7 @@ extension BLECentral: CBCentralManagerDelegate {
         }
         
         os_log("Discovered %s at %d", String(describing: peripheral.name), RSSI.intValue)
+        deviceRSSICache[peripheral] = Int32(RSSI.intValue)
         
         // Device is in range - have we already seen it?
         
@@ -188,7 +189,7 @@ extension BLECentral: CBCentralManagerDelegate {
                 print("Reconnecting to perhiperal %@", peripheral)
                 centralManager.retrieveConnectedPeripherals(withServices: knownDevices)
                 deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
-                cIKeyExchange.makePeripheralPCIdReqFromCentral(bleCentral: self, per: peripheral)
+                cIKeyExchange.makePeripheralPCIdReqFromCentral(bleCentral: self, per: peripheral, rssi: RSSI.intValue)
             }
         } else {
             os_log("Connecting to perhiperal(without timer) %@", peripheral)
@@ -314,12 +315,12 @@ extension BLECentral: CBPeripheralDelegate {
         if receiveBuffer.count == personnalContactIdSize {
             if BLECentral.pCIdExchangeCache.keys.contains(peripheral.identifier.uuidString) {
                 if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                    cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
+                    cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString(), rssi: deviceRSSICache[peripheral]!)
                 } else {
                     print("keys already exchanged")
                 }
             } else {
-                cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString())
+                cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString(), rssi: deviceRSSICache[peripheral]!)
             }
         }
         receiveBuffer.removeAll()

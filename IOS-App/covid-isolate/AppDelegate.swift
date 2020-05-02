@@ -33,18 +33,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             newUser.registrationDate = generatedUser.registrationDate
             newUser.keyPairChainTagName = generatedUser.keyPairChainTagName
 
-//            let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
-//            newContact.distance = 0
-//            newContact.contactId = "-------------test-cid----------"
-//            newContact.dateTime = cIUtils.genStringTimeDateStamp()
-
         }
 
         
         let user = cIUtils.fetchSingleUserFromCoreDb(context:context)!
         let privateKey = RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!
         
-
         self.bleCentralManager.loadBLECentral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
         self.blePeripheralManager.loadBLEPeripheral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
         
