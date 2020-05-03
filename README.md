@@ -58,27 +58,37 @@ The concept requires the application to run 24/7 and to be close to the user, si
 
 ### Bluetooth BLE
 
-![bluetooth le concept](Media/BLE.JPG)
+![bluetooth le concept](Media/ble.png)
 
 [BLE](https://en.wikipedia.org/wiki/Bluetooth_Low_Energy) comes with two protocls GATT and GAP, both broadcast information wihtout requiring a pairing process, in contrast to the standard Bluetooth SSP. This is ideal for exchanging information on a temporary and singular basis, which is exactly what is needed since pairing would need too much power, time and the users permission to do so.
-BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data except for identifier values which do not provide enoough storag, which is required since this apps concept relies (such as all others) on a token (pCId 320bytes) exchange between devices.
+BLE offers two protocol modes, GATT, which supoorts client(peripheral)/ server(central) and GAP which supports BLE Beacons. Beacons would be great for detecting proximity but do not provide modes to transfer data except for identifier values which do not provide enoough storag, which is required since this apps concept relies (such as all others) on a token (pCId req 320bytes) exchange between devices.
 With that kept in mind, this app uses the GATT's central/ peripheral mode to discover each other and transfer data.
 
-Each app has a BLE peripheral and central background service running, the central is constantly scanning for new peripheral which privide a covidIsolate service running. Once found, they wait for a certain amount of time(contact event time) before they connect to the peripheral and subscribe to its service and the pCId exchange is happening. A double connect and exchange is prohibited by a temp caching of the last peripheral device uuids.
+Each app has a BLE peripheral and central background service running, the central is constantly scanning for new peripheral which privide a covidIsolate service running. Once found, they wait for a certain amount of time(contact event time) before they connect to the peripheral and subscribe to its service and the pCId (req), exchange is happening. A double connect and exchange is prohibited by a local, temporary caching of the last pcid exchanges with every peripheral/ central.
 
-### Personnal contact ID generation
+The discovery scheme looks like the following:
 
-The pCId represents the hashed(sha256) result of the ID(generated random RFC 4122 version 15 UUID) concatenated with a timeDate stamp. The hash is then signed(PKCS1v15)(more about this consideration can be found under "Contact ID encryption vs signing"), the resulting byte array concatenated with the raw unsigned hash represents the **personnal contact ID**.
+![ble discovery](Media/ble_discovery.png)
 
+### Personnal contact Id Exchange
+
+![pcid exchange](Media/pcid_ex.png)
+
+After a central discovered and connected to a peripheral, it sends a pCId request to the peripheral, which contains the RSSI value (since it can't be known by the peripherhal) and the signed and unsigned personnal contact Id.
+
+#### Personnal contact ID generation
+
+The pCId represents the hashed(sha256) result of the ID(generated random RFC 4122 version 15 UUID) concatenated with a timeDate stamp. The hash(pCId) is then signed(PKCS1v15)(more about this consideration can be found under "Contact ID encryption vs signing"), the resulting byte array concatenated with the raw unsigned hash represents the **personnal contact ID Request**.
 
 ### Infection status check
 
 // TODO
 
-### Personnal contacts storage
+### Storage
 
 #### IOS
   All gathered pCIds and own generated public Keys are stored in apples [CoreData DB](https://developer.apple.com/documentation/coredata)
+  The secretes (public, private key pair) are stored in the IOS keychain.
 
 #### Android
 // TODO
