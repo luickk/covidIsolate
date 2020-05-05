@@ -454,9 +454,9 @@ public class RSACrypto: NSObject {
          return nil
      }
     
-    static public func stringTosecKey(b64Key: String?) -> SecKey?{
+    static public func stringTosecKey(b64Key: String?) -> SecKey? {
         guard let data2 = Data.init(base64Encoded: b64Key!) else {
-           return nil
+            return nil
         }
 
         let keyDict:[NSObject:NSObject] = [
@@ -465,7 +465,7 @@ public class RSACrypto: NSObject {
            kSecAttrKeySizeInBits: NSNumber(value: 512),
            kSecReturnPersistentRef: true as NSObject
         ]
-
+        print(data2)
         guard let publicKey = SecKeyCreateWithData(data2 as CFData, keyDict as CFDictionary, nil) else {
             return nil
         }

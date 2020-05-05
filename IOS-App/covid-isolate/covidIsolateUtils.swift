@@ -31,6 +31,71 @@ public class cIUtils : NSData {
         var keyPairChainTagName: String
     }
     
+    public static func fetchInfectiousContactKeyCSV(remoteUrl: URL, localUrl: URL) {
+        let sessionConfig = URLSessionConfiguration.default
+        let session = URLSession(configuration: sessionConfig)
+        let request = try! URLRequest(url: remoteUrl)
+
+        let task = session.downloadTask(with: request) { (tempLocalUrl, response, error) in
+           if let tempLocalUrl = tempLocalUrl, error == nil {
+               // Success
+               if let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                   print("Success: \(statusCode)")
+               }
+
+               do {
+                try FileManager.default.removeItem(at: localUrl)
+                   
+               } catch (let writeError) {
+                   print("error deleting file \(localUrl) : \(writeError)")
+               }
+               do {
+                try FileManager.default.copyItem(at: tempLocalUrl, to: localUrl)
+                   
+               } catch (let writeError) {
+                   print("error writing file \(localUrl) : \(writeError)")
+               }
+
+           } else {
+               print("Failure: %@", error?.localizedDescription);
+           }
+        }
+        task.resume()
+    }
+    
+    // returns array with dates of infectious contacts
+    public static func infectionStatusCheck(context: NSManagedObjectContext, localUrl: URL, forTheLastContacts: Int) -> [String]{
+        var infectiousContactsDates:[String] = [String]()
+        let lastXContacts = self.fetchContactList(context: context, limit: forTheLastContacts)
+        do {
+            let contents = try String(contentsOf: localUrl, encoding: .utf8)
+            let rows = contents.components(separatedBy: "\n")
+            for row in rows {
+                let infectiousPublicKey = row.components(separatedBy: ";")[0]
+                let publicKey:SecKey?
+                print(infectiousPublicKey)
+                publicKey = RSACrypto.stringTosecKey(b64Key: infectiousPublicKey)
+                
+                if publicKey != nil {
+                    for contact in lastXContacts {
+                       let pCIdBytes = [UInt8](contact.contactId!.data(using: .ascii)!)
+                       if verifyPersonnalContactId(personnalContactId: pCIdBytes, publicKey: publicKey!) {
+                           infectiousContactsDates.append(contact.dateTime!)
+                           print("infect found")
+                       } else {
+                           print("no infect found")
+                       }
+                    }
+                } else {
+                    print("invalid key")
+                }
+            }
+        } catch {
+           print("File Read Error for file \(localUrl)")
+           
+       }
+        return infectiousContactsDates
+    }
     public static func fetchSingleUserFromCoreDb(context: NSManagedObjectContext) -> cIUtils.User?{
         var user:cIUtils.User = User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
         do {
@@ -48,10 +113,15 @@ public class cIUtils : NSData {
         return user
     }
     
-    public static func fetchContactList(context: NSManagedObjectContext) -> [ContactList]{
+    public static func fetchContactList(context: NSManagedObjectContext, limit: Int) -> [ContactList]{
         var contacts:[ContactList] = [ContactList]()
         do {
             let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "ContactList")
+            let sort = NSSortDescriptor(key: #keyPath(ContactList.dateTime), ascending: false)
+            fetchRequest.sortDescriptors = [sort]
+            if limit != 0 {
+                fetchRequest.fetchLimit = limit
+            }
             contacts = try context.fetch(fetchRequest) as! [covidIsolate.ContactList]
             
         } catch {
@@ -59,11 +129,21 @@ public class cIUtils : NSData {
         return contacts
     }
     
-    public static func addContactToContactList(context: NSManagedObjectContext, contactId: String, dateTime: String, distance: Int32) {
+    public static func byteArray<T>(from value: T) -> [UInt8] where T: FixedWidthInteger {
+        withUnsafeBytes(of: value.bigEndian, Array.init)
+    }
+    
+    public static func addContactToContactList(context: NSManagedObjectContext, contactId: String, dateTime: String, distance: Int) {
         let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
         newContact.contactId = contactId
         newContact.dateTime = dateTime
         newContact.distance = distance
+        
+        do {
+            try context.save()
+        } catch let error as NSError {
+            print("Error While Deleting Note: \(error.userInfo)")
+        }
     }
     
     public static func genStringTimeDateStamp() -> String{

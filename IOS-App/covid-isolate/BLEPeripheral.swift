@@ -39,8 +39,8 @@ class BLEPeripheral : NSObject {
     
     // pCId = 320
     let personnalContactIdSize = 320
-    // rssi (int32) = 4 bytes
-    let rssiSize = 4
+    // rssi (int) = 8 bytes
+    let rssiSize = 8
     
     var rssiPCIdSize = 0
     
@@ -270,9 +270,10 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             
             receiveBuffer.append(requestValue!)
             
-            if receiveBuffer.count == rssiPCIdSize {
+            if receiveBuffer.count == rssiPCIdSize && connectedCentral != nil {
                 let pCId = receiveBuffer.prefix(320)
-                let rssi = Int32(bigEndian: receiveBuffer.suffix(from: rssiSize).withUnsafeBytes({ $0.pointee }))
+                print(receiveBuffer.suffix(from: rssiSize))
+                let rssi = Int(littleEndian: receiveBuffer.suffix(from: rssiSize).withUnsafeBytes { $0.pointee })
                 if BLECentral.pCIdExchangeCache.keys.contains(connectedCentral!.identifier.uuidString) {
                     if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString]!)!) < BLECentral.contactEventTime {
                         cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId.base64EncodedString(), rssi: rssi)

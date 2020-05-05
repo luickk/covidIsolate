@@ -37,6 +37,7 @@
 		E550E0C6243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataClass.swift"; sourceTree = "<group>"; };
 		E550E0C7243C9C59009A8AF7 /* PersonnalContactIdList+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersonnalContactIdList+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		E550E0CA243DE634009A8AF7 /* covidIsolateUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = covidIsolateUtils.swift; sourceTree = "<group>"; };
+		E568B267246196150082640C /* covidIsolate.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = covidIsolate.entitlements; sourceTree = "<group>"; };
 		E59DFBEB244330B400045C31 /* BLEPeripheral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLEPeripheral.swift; sourceTree = "<group>"; };
 		E59DFBED2443333F00045C31 /* BLECentral.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLECentral.swift; sourceTree = "<group>"; };
 		E59DFBEF24472CB700045C31 /* OwnPublicKeyList+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "OwnPublicKeyList+CoreDataClass.swift"; sourceTree = "<group>"; };
@@ -70,6 +71,7 @@
 		E5A172382438B08300D53C84 = {
 			isa = PBXGroup;
 			children = (
+				E568B267246196150082640C /* covidIsolate.entitlements */,
 				E5A172432438B08300D53C84 /* covid-isolate */,
 				E5A172422438B08300D53C84 /* Products */,
 			);
@@ -361,6 +363,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = covidIsolate.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"covid-isolate/Preview Content\"";
 				DEVELOPMENT_TEAM = TC7GRLMS29;
@@ -381,6 +384,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = covidIsolate.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_ASSET_PATHS = "\"covid-isolate/Preview Content\"";
 				DEVELOPMENT_TEAM = TC7GRLMS29;

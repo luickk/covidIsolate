@@ -50,7 +50,7 @@ class BLECentral : NSObject {
     
     var deviceChache = [CBPeripheral:String]()
     static var pCIdExchangeCache = [String:String]()
-    var deviceRSSICache = [CBPeripheral:Int32]()
+    var deviceRSSICache = [CBPeripheral:Int]()
     var knownDevices = [CBUUID]()
 
     // MARK: - view lifecycle
@@ -108,8 +108,7 @@ class BLECentral : NSObject {
             }
         }
         
-        // If we've gotten this far, we're connected, but we're not subscribed, so we just disconnect
-//        centralManager.cancelPeripheralConnection(discoveredPeripheral)
+        centralManager.cancelPeripheralConnection(discoveredPeripheral)
     }
 }
 
@@ -177,7 +176,7 @@ extension BLECentral: CBCentralManagerDelegate {
         }
         
         os_log("Discovered %s at %d", String(describing: peripheral.name), RSSI.intValue)
-        deviceRSSICache[peripheral] = Int32(RSSI.intValue)
+        deviceRSSICache[peripheral] = RSSI.intValue
         
         // Device is in range - have we already seen it?
         
@@ -187,15 +186,16 @@ extension BLECentral: CBCentralManagerDelegate {
             print(BLECentral.receivedPCIdsCount)
             if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: deviceChache[peripheral]!)!) < BLECentral.contactEventTime {
                 print("Reconnecting to perhiperal %@", peripheral)
-                centralManager.retrieveConnectedPeripherals(withServices: knownDevices)
+//                centralManager.retrieveConnectedPeripherals(withServices: [BLECentral.covidIsolateServiceUUID])
+                centralManager!.connect(peripheral, options: nil)
                 deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
-                cIKeyExchange.makePeripheralPCIdReqFromCentral(bleCentral: self, per: peripheral, rssi: RSSI.intValue)
             }
         } else {
-            os_log("Connecting to perhiperal(without timer) %@", peripheral)
+            os_log("Connecting to perhiperal(without timer) %@ -> disconnecting", peripheral)
             centralManager.connect(peripheral, options: nil)
             deviceChache[peripheral] = cIUtils.genStringTimeDateStamp()
             knownDevices.append(CBUUID.init(string: peripheral.identifier.uuidString))
+            centralManager!.cancelPeripheralConnection(peripheral)
         }
     }
 
@@ -212,7 +212,6 @@ extension BLECentral: CBCentralManagerDelegate {
      */
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         os_log("Peripheral Connected")
-        
         
         // set iteration info
         connectionIterationsComplete += 1
@@ -311,6 +310,7 @@ extension BLECentral: CBPeripheralDelegate {
             return
         }
         receiveBuffer.append(characteristic.value!)
+        print("RECEIVED PERI REQ ANSWER")
         print(receiveBuffer.count)
         if receiveBuffer.count == personnalContactIdSize {
             if BLECentral.pCIdExchangeCache.keys.contains(peripheral.identifier.uuidString) {
@@ -342,6 +342,8 @@ extension BLECentral: CBPeripheralDelegate {
         if characteristic.isNotifying {
             // Notification has started
             os_log("Notification began on %@", characteristic)
+            cIKeyExchange.makePeripheralPCIdReqFromCentral(bleCentral: self, per: peripheral, rssi: deviceRSSICache[peripheral]!)
+            
         } else {
             // Notification has stopped, so disconnect from the peripheral
             os_log("Notification stopped on %@. Disconnecting", characteristic)

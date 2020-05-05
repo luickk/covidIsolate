@@ -27,6 +27,7 @@ struct ContentView: View {
     @State private var contactList: [ContactList] = [ContactList]()
     
     @State var showKeyPrivateAlert = false
+    @State var infectiousStatusCheckAlert = false
     @State var showKeyPublicAlert = false
     @State var showGenTestPCId = false
     @State var showGenTestPCIdVerify = false
@@ -50,10 +51,15 @@ struct ContentView: View {
                     Text("Contact Tracing: \(ToggleAction(State: toggle_ct))")
                 }
                 .padding()
-                Button(action: {}) {
+                Button(action: {
+                    self.infectiousStatusCheckAlert = true
+                }) {
                     Text("Check infection status")
-                }
-                .padding()
+                    }
+                    .alert(isPresented: self.$infectiousStatusCheckAlert) {
+                        return self.infectionStatusButtonCheck()
+                    }
+                    .padding()
                 
             }
             .padding(.horizontal)
@@ -85,14 +91,16 @@ struct ContentView: View {
                     .padding([ .leading, .trailing])
                }
                 .alert(isPresented: self.$showKeyPublicAlert) {
-                    Alert(title: Text("Your Public Key: "), message:     Text(Data(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!.utf8).base64EncodedString()
+                    print(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public")))
+                    
+                    return Alert(title: Text("Your Public Key: "), message:     Text(Data(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!.utf8).base64EncodedString()
                     ), dismissButton: .default(Text("I'll keep it secret!")))
                 }
                 
                 Divider()
                 
                 Button(action: {
-                    self.contactList = cIUtils.fetchContactList(context: self.context)
+                    self.contactList = cIUtils.fetchContactList(context: self.context, limit: 30)
                 }) {
                     Text("Contacts (click to refresh)")
                 }.padding()
@@ -119,7 +127,7 @@ struct ContentView: View {
         }
         .onAppear(perform: {
             self.user = cIUtils.fetchSingleUserFromCoreDb(context: self.context)!
-            self.contactList = cIUtils.fetchContactList(context: self.context)
+            self.contactList = cIUtils.fetchContactList(context: self.context, limit: 30)
         })
     }
     
@@ -136,6 +144,27 @@ struct ContentView: View {
             }
         }
         return String(State)
+    }
+    
+    func infectionStatusButtonCheck() -> Alert {
+        let amountOfContactsToCheck = 100
+        let fileName = "key.csv"
+        let remoteInfectiousKeyCSVPath = "https://cy8berpunk.com/key.csv"
+        
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+
+            cIUtils.fetchInfectiousContactKeyCSV(remoteUrl: URL(string: remoteInfectiousKeyCSVPath)!, localUrl: dir.appendingPathComponent(fileName))
+            
+            let infectiousContactsDates = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
+            print(infectiousContactsDates)
+            if infectiousContactsDates.count <= 0 {
+                return Alert(title: Text("Info"), message:     Text("You were NOT in contact with somebody infectious for the last "+String(amountOfContactsToCheck)+" contacts"), dismissButton: .default(Text("ok")))
+            } else {
+                return Alert(title: Text("Info"), message:     Text("You were in contact with somebody infectious at: " + infectiousContactsDates.joined(separator: ",")), dismissButton: .default(Text("ok")))
+                        
+            }
+        }
+        return Alert(title: Text("Info"), message:     Text("error"), dismissButton: .default(Text("ok")))
     }
 }
 

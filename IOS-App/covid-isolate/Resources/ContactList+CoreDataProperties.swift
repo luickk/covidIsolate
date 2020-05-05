@@ -19,6 +19,6 @@ extension ContactList : Identifiable {
 
     @NSManaged public var contactId: String?
     @NSManaged public var dateTime: String?
-    @NSManaged public var distance: Int32
+    @NSManaged public var distance: Int
 
 }

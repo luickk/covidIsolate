@@ -38,8 +38,8 @@ public class cIKeyExchange {
                 let timeStamp:String = cIUtils.genStringTimeDateStamp()
                 
                 let personnalContactId = cIUtils.createPersonnalContactId(id: bleCentral.user!.id, timeStamp: timeStamp, privateKey: bleCentral.privateKey!)
-
-                let bytesDataToSend = personnalContactId + withUnsafeBytes(of: Int32(rssi).bigEndian, Array.init)
+                
+                let bytesDataToSend = personnalContactId + withUnsafeBytes(of: rssi, Array.init)
                 
                 // converting to data object and concatenating pCI(320 bytes) with rssi (+4bytes)
                 let dataToSend = Data(bytes: bytesDataToSend, count: bytesDataToSend.count)
@@ -56,8 +56,8 @@ public class cIKeyExchange {
             let timeStamp:String = cIUtils.genStringTimeDateStamp()
             
             let personnalContactId = cIUtils.createPersonnalContactId(id: bleCentral.user!.id, timeStamp: timeStamp, privateKey: bleCentral.privateKey!)
-            
-            let bytesDataToSend = personnalContactId + withUnsafeBytes(of: Int32(rssi).bigEndian, Array.init)
+            print(cIUtils.byteArray(from: rssi))
+            let bytesDataToSend = personnalContactId + cIUtils.byteArray(from: rssi)
             
             // converting to data object and concatenating pCI(320 bytes) with rssi (+4bytes)
             let dataToSend = Data(bytes: bytesDataToSend, count: bytesDataToSend.count)
@@ -68,7 +68,7 @@ public class cIKeyExchange {
         }
     }
     
-    static func addPCIdFromPeri(blePeri: BLEPeripheral, peripheral: CBPeripheralManager, contactId: String, rssi:Int32) {
+    static func addPCIdFromPeri(blePeri: BLEPeripheral, peripheral: CBPeripheralManager, contactId: String, rssi:Int) {
         BLECentral.receivedPCIdsCount += 1
         BLECentral.pCIdExchangeCache[blePeri.connectedCentral!.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
         print("added pCId to pCId List")
@@ -77,10 +77,11 @@ public class cIKeyExchange {
         cIUtils.addContactToContactList(context: blePeri.viewContext, contactId: contactId, dateTime: cIUtils.genStringTimeDateStamp(), distance: rssi)
     }
     
-    static func addPCIdFromCentral(bleCentral: BLECentral, peripheral: CBPeripheral, contactId: String, rssi:Int32) {
+    static func addPCIdFromCentral(bleCentral: BLECentral, peripheral: CBPeripheral, contactId: String, rssi:Int) {
         BLECentral.receivedPCIdsCount += 1
         BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
         print("added pCId to pCId List")
         cIUtils.addContactToContactList(context: bleCentral.viewContext, contactId: contactId, dateTime: cIUtils.genStringTimeDateStamp(), distance: rssi)
+        bleCentral.centralManager!.cancelPeripheralConnection(peripheral)
     }
 }

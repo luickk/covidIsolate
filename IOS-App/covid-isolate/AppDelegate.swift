@@ -21,7 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let context = (UIApplication.shared.delegate as!
             AppDelegate).persistentContainer.viewContext
         
-        
         if !hasLaunchedBefore {
             
             let generatedUser = cIUtils.generateNewUser()
@@ -35,12 +34,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         }
 
-        
         let user = cIUtils.fetchSingleUserFromCoreDb(context:context)!
         let privateKey = RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-private")!
         
         self.bleCentralManager.loadBLECentral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
         self.blePeripheralManager.loadBLEPeripheral(persistentContainer: persistentContainer, user: user, privateKey: privateKey)
+        
+        do {
+            try context.save()
+        } catch let error as NSError {
+            print("Error While Deleting Note: \(error.userInfo)")
+        }
         
         // Override point for customization after application launch.
         return true
