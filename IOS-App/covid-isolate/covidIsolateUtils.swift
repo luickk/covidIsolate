@@ -31,7 +31,7 @@ public class cIUtils : NSData {
         var keyPairChainTagName: String
     }
     
-    public static func fetchInfectiousContactKeyCSV(remoteUrl: URL, localUrl: URL) {
+    public static func fetchInfectiousContactKeyCSV(remoteUrl: URL, localUrl: URL, completionHandler: @escaping (Bool) -> Void)  {
         let sessionConfig = URLSessionConfiguration.default
         let session = URLSession(configuration: sessionConfig)
         let request = try! URLRequest(url: remoteUrl)
@@ -41,8 +41,9 @@ public class cIUtils : NSData {
                // Success
                if let statusCode = (response as? HTTPURLResponse)?.statusCode {
                    print("Success: \(statusCode)")
+                   completionHandler(true)
                }
-
+            
                do {
                 try FileManager.default.removeItem(at: localUrl)
                    
@@ -54,10 +55,12 @@ public class cIUtils : NSData {
                    
                } catch (let writeError) {
                    print("error writing file \(localUrl) : \(writeError)")
+                   completionHandler(false)
                }
 
            } else {
                print("Failure: %@", error?.localizedDescription);
+               completionHandler(false)
            }
         }
         task.resume()

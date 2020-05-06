@@ -32,6 +32,8 @@ struct ContentView: View {
     @State var showGenTestPCId = false
     @State var showGenTestPCIdVerify = false
     
+    @State var infectionStatusCheck: String = "...."
+    
     let appDel = UIApplication.shared.delegate as! AppDelegate
     
     var body: some View {
@@ -52,14 +54,12 @@ struct ContentView: View {
                 }
                 .padding()
                 Button(action: {
-                    self.infectiousStatusCheckAlert = true
+                   self.infectionStatusButtonCheck()
                 }) {
-                    Text("Check infection status")
-                    }
-                    .alert(isPresented: self.$infectiousStatusCheckAlert) {
-                        return self.infectionStatusButtonCheck()
-                    }
-                    .padding()
+                   Text("Check infection status")
+                }
+                .padding()
+                Text(infectionStatusCheck).padding()
                 
             }
             .padding(.horizontal)
@@ -146,25 +146,28 @@ struct ContentView: View {
         return String(State)
     }
     
-    func infectionStatusButtonCheck() -> Alert {
+    func infectionStatusButtonCheck() {
         let amountOfContactsToCheck = 100
         let fileName = "key.csv"
         let remoteInfectiousKeyCSVPath = "https://cy8berpunk.com/key.csv"
-        
-        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
 
-            cIUtils.fetchInfectiousContactKeyCSV(remoteUrl: URL(string: remoteInfectiousKeyCSVPath)!, localUrl: dir.appendingPathComponent(fileName))
-            
-            let infectiousContactsDates = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
-            print(infectiousContactsDates)
-            if infectiousContactsDates.count <= 0 {
-                return Alert(title: Text("Info"), message:     Text("You were NOT in contact with somebody infectious for the last "+String(amountOfContactsToCheck)+" contacts"), dismissButton: .default(Text("ok")))
-            } else {
-                return Alert(title: Text("Info"), message:     Text("You were in contact with somebody infectious at: " + infectiousContactsDates.joined(separator: ",")), dismissButton: .default(Text("ok")))
-                        
+        if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+          cIUtils.fetchInfectiousContactKeyCSV(remoteUrl: URL(string: remoteInfectiousKeyCSVPath)!, localUrl: dir.appendingPathComponent(fileName)) { result in
+              switch result {
+                  case true:
+                      let infectiousContactsDates = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
+                      print(infectiousContactsDates)
+                      if infectiousContactsDates.count <= 0 {
+                          self.infectionStatusCheck = "You were NOT in contact with somebody infectious for the last "+String(amountOfContactsToCheck)+" contacts"
+                      } else {
+                          self.infectionStatusCheck = "You were in contact with somebody infectious at: " + infectiousContactsDates.joined(separator: ",")
+                      }
+                  case false:
+                      print("there was an errro")
+                      Alert(title: Text("Info"), message:     Text("error while downloading"), dismissButton: .default(Text("ok")))
+              }
             }
         }
-        return Alert(title: Text("Info"), message:     Text("error"), dismissButton: .default(Text("ok")))
     }
 }
 
