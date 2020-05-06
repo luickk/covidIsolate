@@ -38,11 +38,6 @@ public class cIUtils : NSData {
 
         let task = session.downloadTask(with: request) { (tempLocalUrl, response, error) in
            if let tempLocalUrl = tempLocalUrl, error == nil {
-               // Success
-               if let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                   print("Success: \(statusCode)")
-                   completionHandler(true)
-               }
             
                do {
                 try FileManager.default.removeItem(at: localUrl)
@@ -58,6 +53,11 @@ public class cIUtils : NSData {
                    completionHandler(false)
                }
 
+                // Success
+                if let statusCode = (response as? HTTPURLResponse)?.statusCode {
+                    print("Success: \(statusCode)")
+                    completionHandler(true)
+                }
            } else {
                print("Failure: %@", error?.localizedDescription);
                completionHandler(false)
@@ -132,7 +132,7 @@ public class cIUtils : NSData {
         return contacts
     }
     
-    public static func byteArray<T>(from value: T) -> [UInt8] where T: FixedWidthInteger {
+    public static func intTobyteArray<T>(from value: T) -> [UInt8] where T: FixedWidthInteger {
         withUnsafeBytes(of: value.bigEndian, Array.init)
     }
     
@@ -193,5 +193,20 @@ public class cIUtils : NSData {
             RSACrypto.addRSAPublicKey(RSACrypto.secKeyToString(key: publicKey!)!, tagName: uuid+"-public")
                 
             return User(id:uuid, dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: uuid)
+    }
+    public static func deleteAllData(context: NSManagedObjectContext, entity: String)
+    {
+        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: entity)
+        fetchRequest.returnsObjectsAsFaults = false
+
+        do {
+            let results = try context.fetch(fetchRequest)
+            for object in results {
+                guard let objectData = object as? NSManagedObject else {continue}
+                context.delete(objectData)
+            }
+        } catch let error {
+            print("Detele all data in \(entity) error :", error)
+        }
     }
 }

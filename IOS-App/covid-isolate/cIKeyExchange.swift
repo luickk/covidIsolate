@@ -56,8 +56,8 @@ public class cIKeyExchange {
             let timeStamp:String = cIUtils.genStringTimeDateStamp()
             
             let personnalContactId = cIUtils.createPersonnalContactId(id: bleCentral.user!.id, timeStamp: timeStamp, privateKey: bleCentral.privateKey!)
-            print(cIUtils.byteArray(from: rssi))
-            let bytesDataToSend = personnalContactId + cIUtils.byteArray(from: rssi)
+            print(cIUtils.intTobyteArray(from: rssi))
+            let bytesDataToSend = personnalContactId + cIUtils.intTobyteArray(from: rssi)
             
             // converting to data object and concatenating pCI(320 bytes) with rssi (+4bytes)
             let dataToSend = Data(bytes: bytesDataToSend, count: bytesDataToSend.count)

@@ -96,7 +96,18 @@ struct ContentView: View {
                     return Alert(title: Text("Your Public Key: "), message:     Text(Data(RSACrypto.secKeyToString(key: RSACrypto.getRSAKeyFromKeychain(user.keyPairChainTagName+"-public"))!.utf8).base64EncodedString()
                     ), dismissButton: .default(Text("I'll keep it secret!")))
                 }
-                
+                Button(action: {
+                      cIUtils.deleteAllData(context: self.context ,entity: "ContactList")
+                      do {
+                          try self.context.save()
+                      } catch {
+                      }
+                      self.contactList = cIUtils.fetchContactList(context: self.context, limit: 30)
+                  }) {
+                    Text("Reset Contact List")
+                        .foregroundColor(Color.red)
+                     .padding([ .leading, .trailing])
+                }
                 Divider()
                 
                 Button(action: {
@@ -153,7 +164,7 @@ struct ContentView: View {
 
         if let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
           cIUtils.fetchInfectiousContactKeyCSV(remoteUrl: URL(string: remoteInfectiousKeyCSVPath)!, localUrl: dir.appendingPathComponent(fileName)) { result in
-              switch result {
+                switch result {
                   case true:
                       let infectiousContactsDates = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
                       print(infectiousContactsDates)
@@ -163,9 +174,8 @@ struct ContentView: View {
                           self.infectionStatusCheck = "You were in contact with somebody infectious at: " + infectiousContactsDates.joined(separator: ",")
                       }
                   case false:
-                      print("there was an errro")
-                      Alert(title: Text("Info"), message:     Text("error while downloading"), dismissButton: .default(Text("ok")))
-              }
+                      self.infectionStatusCheck = "error while downloading"
+                }
             }
         }
     }
