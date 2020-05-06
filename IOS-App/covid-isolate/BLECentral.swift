@@ -315,12 +315,12 @@ extension BLECentral: CBPeripheralDelegate {
         if receiveBuffer.count == personnalContactIdSize {
             if BLECentral.pCIdExchangeCache.keys.contains(peripheral.identifier.uuidString) {
                 if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                    cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString(), rssi: deviceRSSICache[peripheral]!)
+                    cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer, rssi: deviceRSSICache[peripheral]!)
                 } else {
                     print("keys already exchanged")
                 }
             } else {
-                cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer.base64EncodedString(), rssi: deviceRSSICache[peripheral]!)
+                cIKeyExchange.addPCIdFromCentral(bleCentral: self, peripheral: peripheral, contactId: receiveBuffer, rssi: deviceRSSICache[peripheral]!)
             }
         }
         receiveBuffer.removeAll()

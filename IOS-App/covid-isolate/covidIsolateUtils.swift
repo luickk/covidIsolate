@@ -81,7 +81,7 @@ public class cIUtils : NSData {
                 
                 if publicKey != nil {
                     for contact in lastXContacts {
-                       let pCIdBytes = [UInt8](contact.contactId!.data(using: .ascii)!)
+                       let pCIdBytes = [UInt8](contact.contactId!)
                        if verifyPersonnalContactId(personnalContactId: pCIdBytes, publicKey: publicKey!) {
                            infectiousContactsDates.append(contact.dateTime!)
                            print("infect found")
@@ -136,7 +136,7 @@ public class cIUtils : NSData {
         withUnsafeBytes(of: value.bigEndian, Array.init)
     }
     
-    public static func addContactToContactList(context: NSManagedObjectContext, contactId: String, dateTime: String, distance: Int) {
+    public static func addContactToContactList(context: NSManagedObjectContext, contactId: Data, dateTime: String, distance: Int) {
         let newContact = ContactList(entity: ContactList.entity(), insertInto: context)
         newContact.contactId = contactId
         newContact.dateTime = dateTime

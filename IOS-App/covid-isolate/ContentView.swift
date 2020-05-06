@@ -110,7 +110,7 @@ struct ContentView: View {
                 
                 List(self.contactList) { contact in
                     VStack(alignment: .leading) {
-                        Text("CID: ").font(.caption).fontWeight(.thin) + Text(contact.contactId!.prefix(10) + "...")
+                        Text("CID: ").font(.caption).fontWeight(.thin) + Text(contact.contactId!.base64EncodedString().prefix(10) + "...")
                             .font(.caption)
                         Text(contact.dateTime!)
                             .fontWeight(.thin)

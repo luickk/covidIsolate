@@ -276,12 +276,12 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
                 let rssi = Int(littleEndian: receiveBuffer.suffix(from: rssiSize).withUnsafeBytes { $0.pointee })
                 if BLECentral.pCIdExchangeCache.keys.contains(connectedCentral!.identifier.uuidString) {
                     if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString]!)!) < BLECentral.contactEventTime {
-                        cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId.base64EncodedString(), rssi: rssi)
+                        cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId, rssi: rssi)
                     } else {
                         print("keys already exchanged")
                     }
                 } else {
-                    cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId.base64EncodedString(), rssi: rssi)
+                    cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId, rssi: rssi)
                 }
             }
             receiveBuffer.removeAll()

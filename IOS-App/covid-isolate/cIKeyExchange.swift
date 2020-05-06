@@ -68,7 +68,7 @@ public class cIKeyExchange {
         }
     }
     
-    static func addPCIdFromPeri(blePeri: BLEPeripheral, peripheral: CBPeripheralManager, contactId: String, rssi:Int) {
+    static func addPCIdFromPeri(blePeri: BLEPeripheral, peripheral: CBPeripheralManager, contactId: Data, rssi:Int) {
         BLECentral.receivedPCIdsCount += 1
         BLECentral.pCIdExchangeCache[blePeri.connectedCentral!.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
         print("added pCId to pCId List")
@@ -77,7 +77,7 @@ public class cIKeyExchange {
         cIUtils.addContactToContactList(context: blePeri.viewContext, contactId: contactId, dateTime: cIUtils.genStringTimeDateStamp(), distance: rssi)
     }
     
-    static func addPCIdFromCentral(bleCentral: BLECentral, peripheral: CBPeripheral, contactId: String, rssi:Int) {
+    static func addPCIdFromCentral(bleCentral: BLECentral, peripheral: CBPeripheral, contactId: Data, rssi:Int) {
         BLECentral.receivedPCIdsCount += 1
         BLECentral.pCIdExchangeCache[peripheral.identifier.uuidString] = cIUtils.genStringTimeDateStamp()
         print("added pCId to pCId List")
