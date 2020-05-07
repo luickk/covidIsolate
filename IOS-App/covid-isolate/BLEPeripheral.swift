@@ -271,9 +271,10 @@ extension BLEPeripheral: CBPeripheralManagerDelegate {
             receiveBuffer.append(requestValue!)
             
             if receiveBuffer.count == rssiPCIdSize && connectedCentral != nil {
-                let pCId = receiveBuffer.prefix(320)
-                print(receiveBuffer.suffix(from: rssiSize))
-                let rssi = Int(bigEndian: receiveBuffer.suffix(from: rssiSize).withUnsafeBytes { $0.pointee })
+                let pCId = receiveBuffer.prefix(personnalContactIdSize)
+                
+                print(Array(receiveBuffer.suffix(from: personnalContactIdSize)))
+                let rssi = Int(bigEndian: receiveBuffer.suffix(from: personnalContactIdSize).withUnsafeBytes { $0.pointee })
                 if BLECentral.pCIdExchangeCache.keys.contains(connectedCentral!.identifier.uuidString) {
                     if  Date().distance(to: cIUtils.TimeDateStampStringToDate(inputString: BLECentral.pCIdExchangeCache[connectedCentral!.identifier.uuidString]!)!) < BLECentral.contactEventTime {
                         cIKeyExchange.addPCIdFromPeri(blePeri: self, peripheral: peripheral, contactId: pCId, rssi: rssi)

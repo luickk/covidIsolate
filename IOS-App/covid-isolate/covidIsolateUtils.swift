@@ -67,8 +67,8 @@ public class cIUtils : NSData {
     }
     
     // returns array with dates of infectious contacts
-    public static func infectionStatusCheck(context: NSManagedObjectContext, localUrl: URL, forTheLastContacts: Int) -> [String]{
-        var infectiousContactsDates:[String] = [String]()
+    public static func infectionStatusCheck(context: NSManagedObjectContext, localUrl: URL, forTheLastContacts: Int) -> [ContactList]{
+        var infectiousContacts:[ContactList] = [ContactList]()
         let lastXContacts = self.fetchContactList(context: context, limit: forTheLastContacts)
         do {
             let contents = try String(contentsOf: localUrl, encoding: .utf8)
@@ -83,7 +83,7 @@ public class cIUtils : NSData {
                     for contact in lastXContacts {
                        let pCIdBytes = [UInt8](contact.contactId!)
                        if verifyPersonnalContactId(personnalContactId: pCIdBytes, publicKey: publicKey!) {
-                           infectiousContactsDates.append(contact.dateTime!)
+                           infectiousContacts.append(contact)
                            print("infect found")
                        } else {
                            print("no infect found")
@@ -97,7 +97,7 @@ public class cIUtils : NSData {
            print("File Read Error for file \(localUrl)")
            
        }
-        return infectiousContactsDates
+        return infectiousContacts
     }
     public static func fetchSingleUserFromCoreDb(context: NSManagedObjectContext) -> cIUtils.User?{
         var user:cIUtils.User = User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")

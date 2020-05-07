@@ -25,6 +25,7 @@ struct ContentView: View {
     @State private var user:cIUtils.User = cIUtils.User(id: "", dailySync: false, infectiousIdentifier: false, registrationDate: Date(), keyPairChainTagName: "")
     
     @State private var contactList: [ContactList] = [ContactList]()
+    @State private var infectiousContactList: [ContactList] = [ContactList]()
     
     @State var showKeyPrivateAlert = false
     @State var infectiousStatusCheckAlert = false
@@ -61,6 +62,18 @@ struct ContentView: View {
                 .padding()
                 Text(infectionStatusCheck).padding()
                 
+                List(self.infectiousContactList) { iContact in
+                    VStack(alignment: .leading) {
+                        Text("CID: ").font(.caption).fontWeight(.thin) + Text(iContact.contactId!.base64EncodedString().prefix(10) + "...")
+                            .font(.caption)
+                        Text(iContact.dateTime!)
+                            .fontWeight(.thin)
+                            .font(.caption)
+                        Text(String(iContact.distance))
+                            .fontWeight(.thin)
+                            .font(.caption)
+                    }
+                }
             }
             .padding(.horizontal)
 
@@ -97,16 +110,16 @@ struct ContentView: View {
                     ), dismissButton: .default(Text("I'll keep it secret!")))
                 }
                 Button(action: {
-                      cIUtils.deleteAllData(context: self.context ,entity: "ContactList")
-                      do {
-                          try self.context.save()
-                      } catch {
-                      }
-                      self.contactList = cIUtils.fetchContactList(context: self.context, limit: 30)
+                    cIUtils.deleteAllData(context: self.context ,entity: "ContactList")
+                    do {
+                      try self.context.save()
+                    } catch {}
+                    self.contactList = cIUtils.fetchContactList(context: self.context, limit: 30)
+                    self.infectiousContactList.removeAll()
                   }) {
                     Text("Reset Contact List")
                         .foregroundColor(Color.red)
-                     .padding([ .leading, .trailing])
+                        .padding([ .leading, .trailing])
                 }
                 Divider()
                 
@@ -166,12 +179,13 @@ struct ContentView: View {
           cIUtils.fetchInfectiousContactKeyCSV(remoteUrl: URL(string: remoteInfectiousKeyCSVPath)!, localUrl: dir.appendingPathComponent(fileName)) { result in
                 switch result {
                   case true:
-                      let infectiousContactsDates = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
-                      print(infectiousContactsDates)
-                      if infectiousContactsDates.count <= 0 {
+                      let infectiousContacts = cIUtils.infectionStatusCheck(context: self.context, localUrl: dir.appendingPathComponent(fileName), forTheLastContacts: amountOfContactsToCheck)
+                      
+                      if infectiousContacts.count <= 0 {
                           self.infectionStatusCheck = "You were NOT in contact with somebody infectious for the last "+String(amountOfContactsToCheck)+" contacts"
                       } else {
-                          self.infectionStatusCheck = "You were in contact with somebody infectious at: " + infectiousContactsDates.joined(separator: ",")
+                        self.infectionStatusCheck = "You were in contact with somebody infectious: "
+                        self.infectiousContactList = infectiousContacts
                       }
                   case false:
                       self.infectionStatusCheck = "error while downloading"
