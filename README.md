@@ -82,7 +82,7 @@ The pCId represents the hashed(sha256) result of the ID(generated random RFC 412
 
 ### Infection status check
 
-// TODO
+For the status infection check, the infections users public keys are downloaded from a central server instance. To reduce complexity and the likelihood of an event of error, the public keys are stored in a simple CSV file(The keys are base64 encoded and delimited by a new line), which can be downloaded by every user. For the actual infection check, the downloaded keys are compared against the gathered contact IDs via the validatePCId function, which checks if the signed part of the contact ID was signed by one of the downloaded keys.
 
 ### Storage
 
